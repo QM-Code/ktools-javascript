@@ -33,6 +33,15 @@ test("format message supports placeholders and escaped braces", () => {
     assert.throws(() => ktrace._internal.formatMessage("{:x}", 7), /unsupported/);
 });
 
+test("color names include the shared extended palette", () => {
+    assert.equal(ktrace.Color("MediumSpringGreen"), "MediumSpringGreen");
+    assert.equal(ktrace.Color("Orange3"), "Orange3");
+    assert.equal(ktrace.Color("MediumOrchid1"), "MediumOrchid1");
+    assert.equal(ktrace.Color("LightSkyBlue1"), "LightSkyBlue1");
+    assert.equal(ktrace.Color("default"), "default");
+    assert.throws(() => ktrace.Color("NoSuchColor"), /unknown trace color/);
+});
+
 test("registered selectors only enable registered channels", () => {
     const logger = new ktrace.Logger();
     const trace = new ktrace.TraceLogger("tests");
@@ -61,6 +70,22 @@ test("explicit enable and disable semantics work", () => {
     assert.equal(logger.shouldTraceChannel("tests.cache"), false);
     logger.disableChannel("tests.net");
     assert.equal(logger.shouldTraceChannel("tests.net"), false);
+});
+
+test("trace logger overloads work for selector list APIs", () => {
+    const logger = new ktrace.Logger();
+    const trace = new ktrace.TraceLogger("tests");
+    trace.addChannel("net");
+    trace.addChannel("cache");
+    logger.addTraceLogger(trace);
+
+    logger.enableChannels(trace, ".net,.cache");
+    assert.equal(logger.shouldTraceChannel("tests.net"), true);
+    assert.equal(logger.shouldTraceChannel("tests.cache"), true);
+
+    logger.disableChannels(trace, ".cache");
+    assert.equal(logger.shouldTraceChannel("tests.net"), true);
+    assert.equal(logger.shouldTraceChannel("tests.cache"), false);
 });
 
 test("traceChanged suppresses repeated keys at one call site", () => {

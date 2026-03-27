@@ -7,9 +7,6 @@
     "url": "https://github.com/QM-Code/ktrace-javascript",
     "auth": "git@github.com:QM-Code/ktrace-javascript.git"
   },
-  "kbuild": {
-    "root": "../kbuild"
-  },
   "javascript": {
     "package": "ktrace",
     "sdk_dir": "src",

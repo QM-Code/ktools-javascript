@@ -269,6 +269,25 @@ test("inline root value handler joins tokens", () => {
     assert.equal(receivedOption, "--build");
 });
 
+test("bare inline root prints help even with root value handler", () => {
+    const argv = ["prog", "--build"];
+    const parser = new kcli.Parser();
+    const build = new kcli.InlineParser("build");
+    build.setRootValueHandler((context, value) => {
+        void context;
+        void value;
+    }, "<profile>", "Set build profile.");
+    build.setHandler("-clean", (context) => {
+        void context;
+    }, "Enable clean build.");
+    parser.addInlineParser(build);
+
+    const output = captureStdout(() => parser.parseOrExit(argv.length, argv));
+    assert.match(output, /Available --build-\* options:/);
+    assert.match(output, /--build <profile>/);
+    assert.match(output, /--build-clean/);
+});
+
 test("optional value handler allows missing value", () => {
     const argv = ["prog", "--build-enable"];
     let called = false;

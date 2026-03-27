@@ -7,9 +7,6 @@
     "url": "https://github.com/QM-Code/kcli-javascript",
     "auth": "git@github.com:QM-Code/kcli-javascript.git"
   },
-  "kbuild": {
-    "root": "../kbuild"
-  },
   "javascript": {
     "package": "kcli",
     "sdk_dir": "src",

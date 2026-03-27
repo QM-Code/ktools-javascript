@@ -10,6 +10,17 @@ const { getInlineParser: getGammaInlineParser } = require(path.join(__dirname, "
 
 const kcli = loadKcli(__filename);
 
+function executableName(tokens) {
+    const argv = Array.isArray(tokens) ? tokens : [];
+    const program = String(argv[0] || "");
+    const script = String(argv[1] || "");
+    const programBase = path.basename(program);
+    if (/^node(|js)?$/i.test(programBase) && script) {
+        return path.basename(script);
+    }
+    return program ? path.basename(program) : "app";
+}
+
 function handleBuildProfile(context, value) {
     void context;
     void value;
@@ -34,6 +45,7 @@ function handleArgs(context) {
 
 function main(argv) {
     const tokens = Array.isArray(argv) ? Array.from(argv) : Array.from(process.argv);
+    const exeName = executableName(tokens);
 
     const parser = new kcli.Parser();
     const alphaParser = getAlphaInlineParser();
@@ -61,7 +73,7 @@ function main(argv) {
     parser.parseOrExit(tokens.length, tokens);
 
     console.log("\nUsage:");
-    console.log("  kcli_demo_omega --<root>\n");
+    console.log(`  ${exeName} --<root>\n`);
     console.log("Enabled --<root> prefixes:");
     console.log("  --alpha");
     console.log("  --beta");

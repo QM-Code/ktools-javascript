@@ -8,26 +8,25 @@ It is the root entrypoint for JavaScript implementations of the ktools libraries
 
 This workspace currently contains:
 
-- `kbuild/`
 - `kcli/`
 - `ktrace/`
 
 ## Build Model
 
-This workspace uses a JavaScript-local `kbuild` copy at [`kbuild/`](kbuild).
+This workspace uses the shared `kbuild` repo exposed on `PATH` as `kbuild`.
 
 From the workspace root:
 
 ```bash
-./kbuild.py --batch --build-latest
-./kbuild.py --batch --clean-latest
+kbuild --batch --build-latest
+kbuild --batch --clean-latest
 ```
 
 Use the relevant child repo when building or testing a specific implementation:
 
 ```bash
 cd ktrace
-./kbuild.py --build-latest
+kbuild --build-latest
 ```
 
 ## Where To Go Next
@@ -36,6 +35,5 @@ For concrete JavaScript API and implementation details, use the docs in the rele
 
 Current implementations:
 
-- [kbuild](kbuild)
 - [kcli](kcli)
 - [ktrace](ktrace)

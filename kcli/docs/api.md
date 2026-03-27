@@ -185,5 +185,6 @@ try {
 
 - The full CLI is validated before any registered handler runs.
 - Required values may consume a first token that begins with `-`.
-- Bare inline roots print inline help when no root value handler is provided.
+- Bare inline roots print inline help when no root value is provided.
 - Alias rewrites do not mutate the caller's `argv`.
+- Literal `--` is rejected as an unknown option.

@@ -22,15 +22,17 @@ Validates and returns a supported color token.
 const accent = ktrace.Color("BrightCyan");
 ```
 
-Current named colors:
+`Color(name)` accepts the shared extended palette exposed by
+`--trace-colors`. Representative examples include:
 
 - `Default`
 - `BrightCyan`
-- `BrightYellow`
 - `DeepSkyBlue1`
 - `Gold3`
-- `LightSalmon1`
-- `Red`
+- `MediumSpringGreen`
+- `Orange3`
+- `MediumOrchid1`
+- `LightSkyBlue1`
 
 ## `TraceLogger`
 
@@ -146,6 +148,12 @@ Disables one exact channel.
 #### `disableChannels(selectorsCsv, localNamespace?)`
 
 Disables selector-based channel sets.
+
+The `TraceLogger` overload is also supported:
+
+```js
+logger.disableChannels(appTrace, ".app");
+```
 
 #### `shouldTraceChannel(channel, localNamespace?)`
 

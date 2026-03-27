@@ -33,6 +33,22 @@ test("omega unmatched selector warns but does not fail", () => {
     assert.match(result.stdout, /\[omega\] \[warning\] enable ignored channel selector 'omega\.missing' because it matched no registered channels/);
 });
 
+test("omega trace examples prints the fuller selector guide", () => {
+    const result = runDemo("--trace-examples");
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /General trace selector pattern:/);
+    assert.match(result.stdout, /--trace '\*\.scheduler\.tick'/);
+    assert.match(result.stdout, /--trace '\{alpha,beta\}\.net'/);
+});
+
+test("omega trace colors includes the shared extended palette", () => {
+    const result = runDemo("--trace-colors");
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Available trace colors:/);
+    assert.match(result.stdout, /MediumSpringGreen/);
+    assert.match(result.stdout, /MediumOrchid1/);
+});
+
 test("omega wildcard depth selector enables imported channels", () => {
     const result = runDemo("--trace", "*.*.*.*");
     assert.equal(result.status, 0);

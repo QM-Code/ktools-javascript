@@ -8,8 +8,15 @@ const { getInlineParser } = require(path.join(__dirname, "..", "..", "sdk", "alp
 
 const kcli = loadKcli(__filename);
 
-function executableName(scriptPath) {
-    return scriptPath || "app";
+function executableName(tokens) {
+    const argv = Array.isArray(tokens) ? tokens : [];
+    const program = String(argv[0] || "");
+    const script = String(argv[1] || "");
+    const programBase = path.basename(program);
+    if (/^node(|js)?$/i.test(programBase) && script) {
+        return path.basename(script);
+    }
+    return program ? path.basename(program) : "app";
 }
 
 function handleVerbose(context) {
@@ -23,7 +30,7 @@ function handleOutput(context, value) {
 
 function main(argv) {
     const tokens = Array.isArray(argv) ? Array.from(argv) : Array.from(process.argv);
-    const exeName = executableName(tokens[0]);
+    const exeName = executableName(tokens);
 
     const parser = new kcli.Parser();
     parser.addInlineParser(getInlineParser());

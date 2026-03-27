@@ -2,6 +2,7 @@
 
 const path = require("node:path");
 
+const { COLOR_NAMES } = require("./colors");
 const { loadKcli } = require("./deps");
 const { formatMessage } = require("./format");
 const {
@@ -12,16 +13,6 @@ const {
     selectorMatchesQualifiedChannel,
     trimWhitespace,
 } = require("./selectors");
-
-const COLOR_NAMES = Object.freeze([
-    "Default",
-    "BrightCyan",
-    "BrightYellow",
-    "DeepSkyBlue1",
-    "Gold3",
-    "LightSalmon1",
-    "Red",
-]);
 
 function Color(colorName) {
     const token = trimWhitespace(colorName);
@@ -300,8 +291,14 @@ class Logger {
     }
 
     enableChannels(arg1, arg2) {
-        const selectorsCsv = String(arg1);
-        const localNamespace = this._resolveLocalNamespace(arg2);
+        let selectorsCsv = arg1;
+        let localNamespace = arg2;
+        if (arg1 instanceof TraceLogger) {
+            selectorsCsv = arg2;
+            localNamespace = arg1.getNamespace();
+        }
+        selectorsCsv = String(selectorsCsv);
+        localNamespace = this._resolveLocalNamespace(localNamespace);
         this._applySelectors(selectorsCsv, localNamespace, "enable");
     }
 
@@ -314,8 +311,14 @@ class Logger {
     }
 
     disableChannels(arg1, arg2) {
-        const selectorsCsv = String(arg1);
-        const localNamespace = this._resolveLocalNamespace(arg2);
+        let selectorsCsv = arg1;
+        let localNamespace = arg2;
+        if (arg1 instanceof TraceLogger) {
+            selectorsCsv = arg2;
+            localNamespace = arg1.getNamespace();
+        }
+        selectorsCsv = String(selectorsCsv);
+        localNamespace = this._resolveLocalNamespace(localNamespace);
         this._applySelectors(selectorsCsv, localNamespace, "disable");
     }
 
@@ -366,11 +369,30 @@ class Logger {
         parser.setHandler("-examples", (context) => {
             process.stdout.write(
                 "\nGeneral trace selector pattern:\n" +
-                `  --${context.root} <namespace>.<channel>[.<subchannel>]\n\n` +
+                `  --${context.root} <namespace>.<channel>[.<subchannel>[.<subchannel>]]\n\n` +
                 "Trace selector examples:\n" +
-                `  --${context.root} '.app'\n` +
-                `  --${context.root} '*.*'\n` +
-                `  --${context.root} '*.{net,io}'\n\n`
+                `  --${context.root} '.abc'           Select local 'abc' in current namespace\n` +
+                `  --${context.root} '.abc.xyz'       Select local nested channel in current namespace\n` +
+                `  --${context.root} 'otherapp.channel' Select explicit namespace channel\n` +
+                `  --${context.root} '*.*'            Select all <namespace>.<channel> channels\n` +
+                `  --${context.root} '*.*.*'          Select all channels up to 2 levels\n` +
+                `  --${context.root} '*.*.*.*'        Select all channels up to 3 levels\n` +
+                `  --${context.root} 'alpha.*'        Select all top-level channels in alpha\n` +
+                `  --${context.root} 'alpha.*.*'      Select all channels in alpha (up to 2 levels)\n` +
+                `  --${context.root} 'alpha.*.*.*'    Select all channels in alpha (up to 3 levels)\n` +
+                `  --${context.root} '*.net'          Select 'net' across all namespaces\n` +
+                `  --${context.root} '*.scheduler.tick' Select 'scheduler.tick' across namespaces\n` +
+                `  --${context.root} '*.net.*'        Select subchannels under 'net' across namespaces\n` +
+                `  --${context.root} '*.{net,io}'     Select 'net' and 'io' across all namespaces\n` +
+                `  --${context.root} '{alpha,beta}.*' Select all top-level channels in alpha and beta\n` +
+                `  --${context.root} alpha.net\n` +
+                `  --${context.root} beta.scheduler.tick\n` +
+                `  --${context.root} alpha.net,beta.io\n` +
+                `  --${context.root} gamma.physics.*\n` +
+                `  --${context.root} gamma.physics.*.*\n` +
+                `  --${context.root} alpha.{net,cache}\n` +
+                `  --${context.root} beta.{io,scheduler}.packet\n` +
+                `  --${context.root} '{alpha,beta}.net'\n\n`
             );
         }, "Show selector examples.");
 

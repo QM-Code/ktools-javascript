@@ -19,7 +19,6 @@ Cross-language conceptual definitions belong at the overview/spec level, not her
 
 This workspace currently contains:
 
-- `kbuild/`
 - `kcli/`
 - `ktrace/`
 
@@ -29,4 +28,4 @@ This workspace currently contains:
 2. Prefer making changes in the narrowest repo that actually owns the behavior.
 3. Use the root workspace only for JavaScript-workspace-wide concerns such as root docs or cross-repo coordination.
 4. Read the relevant child repo `AGENTS.md` and `README.md` files before changing code in that repo.
-5. Use the local JavaScript `kbuild.py` when working in this workspace; it is a language-local copy intended to preserve the shared operator flow.
+5. Use `kbuild` when working in this workspace; it is the shared build tool for the ecosystem.
