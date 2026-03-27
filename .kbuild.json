@@ -1,0 +1,17 @@
+{
+  "project": {
+    "title": "Karma Tools JavaScript Workspace",
+    "id": "ktools_javascript"
+  },
+  "git": {
+    "url": "https://github.com/QM-Code/ktools-javascript",
+    "auth": "git@github.com:QM-Code/ktools-javascript.git"
+  },
+  "batch": {
+    "repos": [
+      "kbuild",
+      "kcli",
+      "ktrace"
+    ]
+  }
+}

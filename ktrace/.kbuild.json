@@ -1,0 +1,48 @@
+{
+  "project": {
+    "title": "Karma Trace Logging SDK (JavaScript)",
+    "id": "ktrace_javascript"
+  },
+  "git": {
+    "url": "https://github.com/QM-Code/ktrace-javascript",
+    "auth": "git@github.com:QM-Code/ktrace-javascript.git"
+  },
+  "kbuild": {
+    "root": "../kbuild"
+  },
+  "javascript": {
+    "package": "ktrace",
+    "sdk_dir": "src",
+    "test_globs": [
+      "tests/*.js",
+      "demo/tests/*.js"
+    ],
+    "dependencies": {
+      "kcli": {
+        "prefix": "../kcli/build/{version}/sdk"
+      }
+    },
+    "demos": {
+      "exe/core": {
+        "entry": "demo/exe/core/main.js",
+        "output": "test"
+      },
+      "exe/omega": {
+        "entry": "demo/exe/omega/main.js",
+        "output": "test"
+      }
+    }
+  },
+  "build": {
+    "demos": [
+      "exe/core",
+      "exe/omega"
+    ],
+    "defaults": {
+      "demos": [
+        "exe/core",
+        "exe/omega"
+      ]
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "project": {
+    "title": "Karma CLI Parsing SDK (JavaScript)",
+    "id": "kcli_javascript"
+  },
+  "git": {
+    "url": "https://github.com/QM-Code/kcli-javascript",
+    "auth": "git@github.com:QM-Code/kcli-javascript.git"
+  },
+  "kbuild": {
+    "root": "../kbuild"
+  },
+  "javascript": {
+    "package": "kcli",
+    "sdk_dir": "src",
+    "test_globs": [
+      "tests/*.js",
+      "demo/tests/*.js"
+    ],
+    "demos": {
+      "exe/core": {
+        "entry": "demo/exe/core/main.js",
+        "output": "test"
+      },
+      "exe/omega": {
+        "entry": "demo/exe/omega/main.js",
+        "output": "test"
+      }
+    }
+  },
+  "build": {
+    "demos": [
+      "exe/core",
+      "exe/omega"
+    ],
+    "defaults": {
+      "demos": [
+        "exe/core",
+        "exe/omega"
+      ]
+    }
+  }
+}

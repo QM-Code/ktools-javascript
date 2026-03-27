@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+export KTOOLS_JS_REPO_ROOT="/home/karmak/dev/ktools/ktools-javascript/kcli"
+export KTOOLS_JS_SDK_ROOT_KCLI="/home/karmak/dev/ktools/ktools-javascript/kcli/build/latest/sdk"
+exec node "/home/karmak/dev/ktools/ktools-javascript/kcli/demo/exe/core/main.js" "$@"
