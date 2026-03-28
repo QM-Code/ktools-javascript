@@ -86,12 +86,14 @@ kbuild --build-demos
 
 Demo directories:
 
+- Bootstrap load/use check: `demo/bootstrap/`
 - SDK demos: `demo/sdk/`
 - Executable demos: `demo/exe/{core,omega}`
 
 Useful demo commands:
 
 ```bash
+./demo/bootstrap/build/latest/bootstrap
 ./demo/exe/core/build/latest/test
 ./demo/exe/core/build/latest/test --alpha
 ./demo/exe/core/build/latest/test --alpha-message "hello"

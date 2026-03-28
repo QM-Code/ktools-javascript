@@ -3,21 +3,11 @@
 
 const path = require("node:path");
 
+const { executableName } = require(path.join(__dirname, "..", "common"));
 const { loadKcli } = require(path.join(__dirname, "..", "..", "sdk", "common"));
 const { getInlineParser } = require(path.join(__dirname, "..", "..", "sdk", "alpha"));
 
 const kcli = loadKcli(__filename);
-
-function executableName(tokens) {
-    const argv = Array.isArray(tokens) ? tokens : [];
-    const program = String(argv[0] || "");
-    const script = String(argv[1] || "");
-    const programBase = path.basename(program);
-    if (/^node(|js)?$/i.test(programBase) && script) {
-        return path.basename(script);
-    }
-    return program ? path.basename(program) : "app";
-}
 
 function handleVerbose(context) {
     void context;

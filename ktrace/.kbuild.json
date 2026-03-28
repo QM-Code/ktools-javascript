@@ -20,6 +20,9 @@
       }
     },
     "demos": {
+      "bootstrap": {
+        "entry": "demo/bootstrap/main.js"
+      },
       "exe/core": {
         "entry": "demo/exe/core/main.js",
         "output": "test"
@@ -32,11 +35,13 @@
   },
   "build": {
     "demos": [
+      "bootstrap",
       "exe/core",
       "exe/omega"
     ],
     "defaults": {
       "demos": [
+        "bootstrap",
         "exe/core",
         "exe/omega"
       ]

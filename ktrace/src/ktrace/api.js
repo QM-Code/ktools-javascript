@@ -1,10 +1,15 @@
 "use strict";
 
-const path = require("node:path");
-
 const { COLOR_NAMES } = require("./colors");
-const { loadKcli } = require("./deps");
+const { createTraceInlineParser } = require("./cli");
 const { formatMessage } = require("./format");
+const {
+    buildPrefix,
+    captureSite,
+    cloneOutputOptions,
+    createOutputOptions,
+    writeLine,
+} = require("./output");
 const {
     isIdentifier,
     isValidChannelPath,
@@ -23,83 +28,6 @@ function Color(colorName) {
         throw new Error(`unknown trace color '${token}'`);
     }
     return token;
-}
-
-function createOutputOptions() {
-    return {
-        filenames: false,
-        line_numbers: false,
-        function_names: false,
-        timestamps: false,
-    };
-}
-
-function cloneOutputOptions(options) {
-    return {
-        filenames: Boolean(options && options.filenames),
-        line_numbers: Boolean(options && options.line_numbers),
-        function_names: Boolean(options && options.function_names),
-        timestamps: Boolean(options && options.timestamps),
-    };
-}
-
-function baseNameWithoutExtension(filePath) {
-    return path.basename(String(filePath || ""), path.extname(String(filePath || "")));
-}
-
-function captureSite() {
-    const error = new Error();
-    const stack = String(error.stack || "").split("\n").slice(1);
-    for (const line of stack) {
-        const match = line.match(/\s*at\s+(?:(.*?)\s+\()?(.+?):(\d+):(\d+)\)?$/);
-        if (!match) {
-            continue;
-        }
-        const filePath = match[2];
-        if (!filePath || filePath.includes(path.join("ktrace", "src", "ktrace"))) {
-            continue;
-        }
-        return {
-            file: filePath,
-            line: Number.parseInt(match[3], 10),
-            column: Number.parseInt(match[4], 10),
-            function_name: match[1] || "",
-        };
-    }
-    return {
-        file: "",
-        line: 0,
-        column: 0,
-        function_name: "",
-    };
-}
-
-function formatTimestamp() {
-    return (Date.now() / 1000).toFixed(6);
-}
-
-function buildPrefix(logger, traceNamespace, label, site) {
-    const parts = [`[${traceNamespace}]`];
-    const options = logger._output_options;
-    if (options.timestamps) {
-        parts.push(`[${formatTimestamp()}]`);
-    }
-    parts.push(`[${label}]`);
-    if (options.filenames) {
-        const fileBase = baseNameWithoutExtension(site.file);
-        if (options.function_names) {
-            parts.push(`[${fileBase}:${site.line}:${site.function_name || "<anonymous>"}]`);
-        } else if (options.line_numbers) {
-            parts.push(`[${fileBase}:${site.line}]`);
-        } else {
-            parts.push(`[${fileBase}]`);
-        }
-    }
-    return parts.join(" ");
-}
-
-function writeLine(prefix, message) {
-    process.stdout.write(`${prefix} ${message}\n`);
 }
 
 function validateNamespaceOrThrow(traceNamespace) {
@@ -357,101 +285,12 @@ class Logger {
     }
 
     makeInlineParser(localTraceLogger, traceRoot = "trace") {
-        const kcli = loadKcli(__filename);
-        const parser = new kcli.InlineParser(traceRoot);
-        const localNamespace = localTraceLogger.getNamespace();
-
-        parser.setRootValueHandler((context, value) => {
-            void context;
-            this.enableChannels(value, localNamespace);
-        }, "<channels>", "Trace selected channels.");
-
-        parser.setHandler("-examples", (context) => {
-            process.stdout.write(
-                "\nGeneral trace selector pattern:\n" +
-                `  --${context.root} <namespace>.<channel>[.<subchannel>[.<subchannel>]]\n\n` +
-                "Trace selector examples:\n" +
-                `  --${context.root} '.abc'           Select local 'abc' in current namespace\n` +
-                `  --${context.root} '.abc.xyz'       Select local nested channel in current namespace\n` +
-                `  --${context.root} 'otherapp.channel' Select explicit namespace channel\n` +
-                `  --${context.root} '*.*'            Select all <namespace>.<channel> channels\n` +
-                `  --${context.root} '*.*.*'          Select all channels up to 2 levels\n` +
-                `  --${context.root} '*.*.*.*'        Select all channels up to 3 levels\n` +
-                `  --${context.root} 'alpha.*'        Select all top-level channels in alpha\n` +
-                `  --${context.root} 'alpha.*.*'      Select all channels in alpha (up to 2 levels)\n` +
-                `  --${context.root} 'alpha.*.*.*'    Select all channels in alpha (up to 3 levels)\n` +
-                `  --${context.root} '*.net'          Select 'net' across all namespaces\n` +
-                `  --${context.root} '*.scheduler.tick' Select 'scheduler.tick' across namespaces\n` +
-                `  --${context.root} '*.net.*'        Select subchannels under 'net' across namespaces\n` +
-                `  --${context.root} '*.{net,io}'     Select 'net' and 'io' across all namespaces\n` +
-                `  --${context.root} '{alpha,beta}.*' Select all top-level channels in alpha and beta\n` +
-                `  --${context.root} alpha.net\n` +
-                `  --${context.root} beta.scheduler.tick\n` +
-                `  --${context.root} alpha.net,beta.io\n` +
-                `  --${context.root} gamma.physics.*\n` +
-                `  --${context.root} gamma.physics.*.*\n` +
-                `  --${context.root} alpha.{net,cache}\n` +
-                `  --${context.root} beta.{io,scheduler}.packet\n` +
-                `  --${context.root} '{alpha,beta}.net'\n\n`
-            );
-        }, "Show selector examples.");
-
-        parser.setHandler("-namespaces", () => {
-            const namespaces = this.getNamespaces();
-            if (!namespaces.length) {
-                process.stdout.write("No trace namespaces defined.\n\n");
-                return;
-            }
-            process.stdout.write("\nAvailable trace namespaces:\n");
-            for (const traceNamespace of namespaces) {
-                process.stdout.write(`  ${traceNamespace}\n`);
-            }
-            process.stdout.write("\n");
-        }, "Show initialized trace namespaces.");
-
-        parser.setHandler("-channels", () => {
-            const namespaces = this.getNamespaces();
-            if (!namespaces.length) {
-                process.stdout.write("No trace channels defined.\n\n");
-                return;
-            }
-            process.stdout.write("\nAvailable trace channels:\n");
-            for (const traceNamespace of namespaces) {
-                for (const channelName of this.getChannels(traceNamespace)) {
-                    process.stdout.write(`  ${traceNamespace}.${channelName}\n`);
-                }
-            }
-            process.stdout.write("\n");
-        }, "Show initialized trace channels.");
-
-        parser.setHandler("-colors", () => {
-            process.stdout.write("\nAvailable trace colors:\n");
-            for (const colorName of COLOR_NAMES) {
-                process.stdout.write(`  ${colorName}\n`);
-            }
-            process.stdout.write("\n");
-        }, "Show available trace colors.");
-
-        parser.setHandler("-files", () => {
-            const options = this.getOutputOptions();
-            options.filenames = true;
-            options.line_numbers = true;
-            this.setOutputOptions(options);
-        }, "Include source file and line in trace output.");
-
-        parser.setHandler("-functions", () => {
-            const options = this.getOutputOptions();
-            options.function_names = true;
-            this.setOutputOptions(options);
-        }, "Include function names in trace output.");
-
-        parser.setHandler("-timestamps", () => {
-            const options = this.getOutputOptions();
-            options.timestamps = true;
-            this.setOutputOptions(options);
-        }, "Include timestamps in trace output.");
-
-        return parser;
+        return createTraceInlineParser({
+            logger: this,
+            localTraceLogger,
+            traceRoot,
+            colorNames: COLOR_NAMES,
+        });
     }
 }
 

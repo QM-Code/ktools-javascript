@@ -35,32 +35,21 @@ function findRepoRoot(currentFile) {
         }
         current = path.dirname(current);
     }
-    throw new Error("unable to locate repository root");
+    throw new Error("unable to locate repository root for demo bootstrap");
 }
 
 function loadKcli(currentFile) {
-    return loadPackage(currentFile, "kcli");
-}
-
-function loadPackage(currentFile, packageName) {
-    const envPath = resolvePackageFromEnv(packageName);
+    const envPath = resolvePackageFromEnv("kcli");
     if (envPath) {
         return require(envPath);
     }
     const repoRoot = findRepoRoot(currentFile);
-    if (packageName === "ktrace") {
-        return require(path.join(repoRoot, "src", "ktrace"));
-    }
-    if (packageName === "kcli") {
-        return require(path.join(repoRoot, "..", "kcli", "src", "kcli"));
-    }
-    throw new Error(`unsupported package '${packageName}'`);
+    return require(path.join(repoRoot, "src", "kcli"));
 }
 
 module.exports = {
     findRepoRoot,
     loadKcli,
-    loadPackage,
     packageEnvKey,
     resolvePackageFromEnv,
 };

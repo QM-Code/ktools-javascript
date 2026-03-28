@@ -39,12 +39,14 @@ kbuild --build-demos
 
 Demos:
 
+- Bootstrap load/use check: `demo/bootstrap/`
 - SDK modules: `demo/sdk/{alpha,beta,gamma}.js`
 - Executables: `demo/exe/{core,omega}`
 
 Trace CLI examples:
 
 ```bash
+./demo/bootstrap/build/latest/bootstrap
 ./demo/exe/core/build/latest/test --trace
 ./demo/exe/core/build/latest/test --trace '.*'
 ./demo/exe/omega/build/latest/test --trace '*.*'
