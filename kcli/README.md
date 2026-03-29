@@ -105,7 +105,8 @@ Useful demo commands:
 
 ## Repository Layout
 
-- Public API: `src/kcli/`
+- Public API: `src/kcli/{index.js,api.js}`
+- Internal implementation: `src/kcli/internal/`
 - Source-level behavior coverage: `tests/test_kcli_js.js`
 - Demo CLI coverage: `demo/tests/`
 - Integration demos: `demo/`

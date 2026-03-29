@@ -55,11 +55,30 @@ function captureParseOrExitFailure(fn) {
     return stderr;
 }
 
+function expectCliError(fn, option, pattern) {
+    assert.throws(
+        fn,
+        (error) => {
+            assert(error instanceof kcli.CliError);
+            assert.equal(error.option(), option);
+            assert.match(error.message, pattern);
+            return true;
+        }
+    );
+}
+
 test("parser empty parse succeeds", () => {
     const argv = ["prog"];
     const parser = new kcli.Parser();
     parser.parseOrExit(argv.length, argv);
     assert.deepEqual(argv, ["prog"]);
+});
+
+test("inline parser rejects invalid root", () => {
+    assert.throws(
+        () => new kcli.InlineParser("-build"),
+        /must use '--root' or 'root'/
+    );
 });
 
 test("known options with unknown option error defer handlers", () => {
@@ -210,6 +229,34 @@ test("alias rejects invalid configurations", () => {
     assert.throws(() => parser.addAlias("-a", "-b"), /double-dash form/);
 });
 
+test("alias with preset values rejects flag targets at parse time", () => {
+    const argv = ["prog", "-v"];
+    const parser = new kcli.Parser();
+    parser.addAlias("-v", "--verbose", ["unexpected"]);
+    parser.setHandler("--verbose", () => {
+    }, "Enable verbose logging.");
+
+    expectCliError(
+        () => parser.parseOrThrow(argv.length, argv),
+        "-v",
+        /does not accept values/
+    );
+});
+
+test("positional handler requires nonempty function", () => {
+    const parser = new kcli.Parser();
+    assert.throws(() => parser.setPositionalHandler(null), /must not be empty/);
+});
+
+test("top-level handler normalization rejects single-dash names", () => {
+    const parser = new kcli.Parser();
+    assert.throws(
+        () => parser.setHandler("-verbose", () => {
+        }, "Enable verbose logging."),
+        /must use '--name' or 'name'/
+    );
+});
+
 test("inline handler normalization accepts short and full forms", () => {
     const argv = ["prog", "--build-flag", "--build-value", "data"];
     let flag = false;
@@ -230,6 +277,15 @@ test("inline handler normalization accepts short and full forms", () => {
     assert.equal(value, "data");
 });
 
+test("inline handler normalization rejects wrong root", () => {
+    const build = new kcli.InlineParser("--build");
+    assert.throws(
+        () => build.setHandler("--other-flag", () => {
+        }, "Enable other flag."),
+        /must use '-name' or '--build-name'/
+    );
+});
+
 test("inline bare root prints help", () => {
     const argv = ["prog", "--build"];
     const parser = new kcli.Parser();
@@ -247,6 +303,24 @@ test("inline bare root prints help", () => {
     assert.match(output, /Available --build-\* options:/);
     assert.match(output, /--build-flag/);
     assert.match(output, /--build-value <value>/);
+});
+
+test("inline root help includes root value row", () => {
+    const argv = ["prog", "--build"];
+    const parser = new kcli.Parser();
+    const build = new kcli.InlineParser("build");
+    build.setRootValueHandler((context, value) => {
+        void context;
+        void value;
+    }, "<selector>", "Select build targets.");
+    build.setHandler("-flag", (context) => {
+        void context;
+    }, "Enable build flag.");
+    parser.addInlineParser(build);
+
+    const output = captureStdout(() => parser.parseOrExit(argv.length, argv));
+    assert.match(output, /--build <selector>/);
+    assert.match(output, /Select build targets\./);
 });
 
 test("inline root value handler joins tokens", () => {
@@ -288,6 +362,19 @@ test("bare inline root prints help even with root value handler", () => {
     assert.match(output, /--build-clean/);
 });
 
+test("inline root errors when no root value handler is registered", () => {
+    const argv = ["prog", "--build", "fast"];
+    const parser = new kcli.Parser();
+    parser.addInlineParser(new kcli.InlineParser("build"));
+
+    expectCliError(
+        () => parser.parseOrThrow(argv.length, argv),
+        "--build",
+        /unknown value for option '--build'/
+    );
+    assert.deepEqual(argv, ["prog", "--build", "fast"]);
+});
+
 test("optional value handler allows missing value", () => {
     const argv = ["prog", "--build-enable"];
     let called = false;
@@ -308,6 +395,62 @@ test("optional value handler allows missing value", () => {
     assert.deepEqual(receivedTokens, []);
 });
 
+test("optional value handler accepts explicit empty value", () => {
+    const argv = ["prog", "--build-enable", ""];
+    let receivedValue = null;
+    let receivedTokens = [];
+    const parser = new kcli.Parser();
+    const build = new kcli.InlineParser("build");
+    build.setOptionalValueHandler("-enable", (context, value) => {
+        receivedValue = value;
+        receivedTokens = Array.from(context.value_tokens);
+    }, "Enable build mode.");
+    parser.addInlineParser(build);
+
+    parser.parseOrExit(argv.length, argv);
+    assert.equal(receivedValue, "");
+    assert.deepEqual(receivedTokens, [""]);
+    assert.deepEqual(argv, ["prog", "--build-enable", ""]);
+});
+
+test("flag handlers do not consume following positional tokens", () => {
+    const argv = ["prog", "--build-meta", "data"];
+    let called = false;
+    let positionals = [];
+    const parser = new kcli.Parser();
+    const build = new kcli.InlineParser("build");
+    build.setHandler("-meta", () => {
+        called = true;
+    }, "Record metadata.");
+    parser.addInlineParser(build);
+    parser.setPositionalHandler((context) => {
+        positionals = Array.from(context.value_tokens);
+    });
+
+    parser.parseOrExit(argv.length, argv);
+    assert.equal(called, true);
+    assert.deepEqual(positionals, ["data"]);
+    assert.deepEqual(argv, ["prog", "--build-meta", "data"]);
+});
+
+test("required value handler rejects missing value", () => {
+    const argv = ["prog", "--build-value"];
+    const parser = new kcli.Parser();
+    const build = new kcli.InlineParser("build");
+    build.setHandler("-value", (context, value) => {
+        void context;
+        void value;
+    }, "Set build value.");
+    parser.addInlineParser(build);
+
+    expectCliError(
+        () => parser.parseOrThrow(argv.length, argv),
+        "--build-value",
+        /requires a value/
+    );
+    assert.deepEqual(argv, ["prog", "--build-value"]);
+});
+
 test("required value handler accepts dash-prefixed first value", () => {
     const argv = ["prog", "--build-value", "-debug"];
     let value = "";
@@ -323,6 +466,38 @@ test("required value handler accepts dash-prefixed first value", () => {
     assert.equal(value, "-debug");
 });
 
+test("required value handler preserves shell whitespace", () => {
+    const argv = ["prog", "--name", " Joe "];
+    let receivedValue = "";
+    let receivedTokens = [];
+    const parser = new kcli.Parser();
+    parser.setHandler("--name", (context, value) => {
+        receivedValue = value;
+        receivedTokens = Array.from(context.value_tokens);
+    }, "Set display name.");
+
+    parser.parseOrExit(argv.length, argv);
+    assert.equal(receivedValue, " Joe ");
+    assert.deepEqual(receivedTokens, [" Joe "]);
+    assert.deepEqual(argv, ["prog", "--name", " Joe "]);
+});
+
+test("required value handler accepts explicit empty value", () => {
+    const argv = ["prog", "--name", ""];
+    let receivedValue = "sentinel";
+    let receivedTokens = [];
+    const parser = new kcli.Parser();
+    parser.setHandler("--name", (context, value) => {
+        receivedValue = value;
+        receivedTokens = Array.from(context.value_tokens);
+    }, "Set display name.");
+
+    parser.parseOrExit(argv.length, argv);
+    assert.equal(receivedValue, "");
+    assert.deepEqual(receivedTokens, [""]);
+    assert.deepEqual(argv, ["prog", "--name", ""]);
+});
+
 test("positional handler preserves explicit empty tokens", () => {
     const argv = ["prog", "", "tail"];
     let positionals = [];
@@ -333,6 +508,18 @@ test("positional handler preserves explicit empty tokens", () => {
 
     parser.parseOrExit(argv.length, argv);
     assert.deepEqual(positionals, ["", "tail"]);
+});
+
+test("unknown inline option throws CliError", () => {
+    const argv = ["prog", "--build-unknown"];
+    const parser = new kcli.Parser();
+    parser.addInlineParser(new kcli.InlineParser("build"));
+
+    expectCliError(
+        () => parser.parseOrThrow(argv.length, argv),
+        "--build-unknown",
+        /unknown option --build-unknown/
+    );
 });
 
 test("unknown option throws CliError", () => {
@@ -347,6 +534,30 @@ test("unknown option throws CliError", () => {
             return true;
         }
     );
+});
+
+test("literal double dash is reported as an unknown option", () => {
+    const parser = new kcli.Parser();
+    expectCliError(
+        () => parser.parseOrThrow(2, ["prog", "--"]),
+        "--",
+        /unknown option --/
+    );
+});
+
+test("literal double dash blocks later alias handling", () => {
+    const argv = ["prog", "--", "-v"];
+    const parser = new kcli.Parser();
+    parser.addAlias("-v", "--verbose");
+    parser.setHandler("--verbose", () => {
+    }, "Enable verbose logging.");
+
+    expectCliError(
+        () => parser.parseOrThrow(argv.length, argv),
+        "--",
+        /unknown option --/
+    );
+    assert.deepEqual(argv, ["prog", "--", "-v"]);
 });
 
 test("handler exceptions surface as CliError", () => {
@@ -365,6 +576,47 @@ test("handler exceptions surface as CliError", () => {
             return true;
         }
     );
+});
+
+test("positional handler exceptions surface as CliError", () => {
+    const argv = ["prog", "tail"];
+    const parser = new kcli.Parser();
+    parser.setPositionalHandler(() => {
+        throw new Error("positional boom");
+    });
+
+    expectCliError(
+        () => parser.parseOrThrow(argv.length, argv),
+        "",
+        /positional boom/
+    );
+});
+
+test("single parse pass handles inline options, top-level options, and positionals", () => {
+    const argv = ["prog", "tail", "--alpha-message", "hello", "--output", "stdout"];
+    let alphaMessage = "";
+    let output = "";
+    let positionals = [];
+    const parser = new kcli.Parser();
+    const alpha = new kcli.InlineParser("alpha");
+    alpha.setHandler("-message", (context, value) => {
+        void context;
+        alphaMessage = value;
+    }, "Set alpha message.");
+    parser.addInlineParser(alpha);
+    parser.setHandler("--output", (context, value) => {
+        void context;
+        output = value;
+    }, "Set output target.");
+    parser.setPositionalHandler((context) => {
+        positionals = Array.from(context.value_tokens);
+    });
+
+    parser.parseOrExit(argv.length, argv);
+    assert.equal(alphaMessage, "hello");
+    assert.equal(output, "stdout");
+    assert.deepEqual(positionals, ["tail"]);
+    assert.deepEqual(argv, ["prog", "tail", "--alpha-message", "hello", "--output", "stdout"]);
 });
 
 test("inline parser root override applies", () => {

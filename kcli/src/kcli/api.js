@@ -14,19 +14,19 @@ const {
     setPrimaryOptionalValueHandler,
     setRootValueHandler,
     setRootValueHandlerWithHelp,
-} = require("./backend");
+} = require("./internal/backend");
 const {
     CliError,
     HandlerContext,
     createInlineParserData,
     createParserData,
-} = require("./model");
+} = require("./internal/model");
 const {
     classifySetHandler,
     reportCliErrorAndExit,
     validateHandlerArity,
-} = require("./normalize");
-const { parse } = require("./process");
+} = require("./internal/normalize");
+const { parse } = require("./internal/process");
 
 class InlineParser {
     constructor(root) {

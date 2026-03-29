@@ -15,6 +15,9 @@ From this repo:
 const kcli = require("../src/kcli");
 ```
 
+The supported public surface is the package entrypoint above. Files under
+`src/kcli/internal/` are implementation details.
+
 ## `Parser`
 
 Top-level parser for ordinary CLI options and positional handling.
