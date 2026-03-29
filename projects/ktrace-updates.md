@@ -22,40 +22,38 @@ with the C++ reference while keeping the CommonJS-facing API simple.
 
 ## Current Gaps
 
-- Staged build output is still tracked under `ktrace/build/latest` and demo
-  build trees.
-- `ktrace/demo/sdk/common.js` is shared demo code and should not exist.
-- The demo SDK layout remains flatter than the reference layout and is harder
-  to compare directly with the other languages.
+- The repo is much cleaner now, but the demo SDK layout remains flatter than
+  the reference layout and is still harder to compare directly with the other
+  languages.
+- The public/internal boundary is clearer, but docs and layout should keep
+  that distinction explicit.
 - The parity audit against the full C++ contract should remain explicit, not
   inferred from passing tests alone.
+- Any staged-output policy that remains should stay narrow and documented.
 
 ## Work Plan
 
-1. Decide and enforce the staged-output policy.
-- Remove tracked build output if it does not need to be versioned.
-- If some staged wrappers must remain, document that policy narrowly and keep
-  the tracked set minimal.
-
-2. Eliminate shared demo code.
-- Remove `ktrace/demo/sdk/common.js`.
-- Make `demo/sdk/alpha.js`, `demo/sdk/beta.js`, and `demo/sdk/gamma.js`
-  self-contained.
-- Keep bootstrap logic in `demo/bootstrap/`.
-- Keep executable composition logic in `demo/exe/core/` and
-  `demo/exe/omega/`.
-- Do not replace `common.js` with another shared demo helper.
-
-3. Continue the parity audit.
+1. Continue the parity audit.
 - Verify channel registration, selector parsing, unmatched-selector warnings,
   output options, operational logging, `traceChanged(...)`, and
   `makeInlineParser(...)` behavior against the C++ contract.
 - Add focused tests for anything still covered only indirectly.
 
-4. Keep the public/internal split explicit.
+2. Revisit demo topology only if it improves clarity.
+- Review whether the current `demo/sdk/*.js` layout tells the “separate demo
+  entities” story clearly enough.
+- Preserve current names and behavior even if you make the structure more
+  legible.
+
+3. Keep the public/internal split explicit.
 - Make sure `src/ktrace/api.js`, `src/ktrace/index.js`, and the internal
   helpers tell a clear story about what consumers should import.
 - Tighten docs where that boundary still feels implicit.
+
+4. Keep staged-output policy explicit.
+- If any generated wrappers or staged files remain intentionally tracked,
+  document that policy narrowly.
+- Do not let build output drift back into the hand-written tree.
 
 5. Keep the implementation readable.
 - Avoid abstraction layers that do not improve clarity.
@@ -77,7 +75,7 @@ with the C++ reference while keeping the CommonJS-facing API simple.
 
 ## Done When
 
-- Build output no longer obscures the hand-written implementation, or any
-  tracked staged output is explicitly justified.
-- Shared demo code is gone.
+- Demo structure is easy to read as separate entities, even if it stays
+  JavaScript-idiomatic.
+- Any intentionally staged tracked output is explicitly justified.
 - Behavior parity with C++ is obvious to reviewers.
