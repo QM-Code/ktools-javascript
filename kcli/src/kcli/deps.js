@@ -25,9 +25,8 @@ function findRepoRoot(currentFile) {
     const filePath = path.resolve(currentFile);
     let current = path.dirname(filePath);
     while (true) {
-        const srcPath = path.join(current, "src");
-        const demoPath = path.join(current, "demo");
-        if (fs.existsSync(srcPath) && fs.existsSync(demoPath)) {
+        const packagePath = path.join(current, "src", "kcli");
+        if (fs.existsSync(packagePath)) {
             return current;
         }
         if (path.dirname(current) === current) {
@@ -35,7 +34,7 @@ function findRepoRoot(currentFile) {
         }
         current = path.dirname(current);
     }
-    throw new Error("unable to locate repository root for demo bootstrap");
+    throw new Error("unable to locate repository root for kcli sources");
 }
 
 function loadKcli(currentFile) {
