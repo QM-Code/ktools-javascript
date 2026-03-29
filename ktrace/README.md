@@ -25,6 +25,9 @@ SDK output:
 - `build/latest/sdk/src/ktrace`
 - `build/latest/sdk/share/kbuild-javascript-sdk.json`
 
+Generated `build/latest/` trees are build artifacts and should not be tracked as
+hand-written source.
+
 ## Build And Test Demos
 
 ```bash
@@ -190,3 +193,11 @@ Direct source-level tests:
 ```bash
 node --test tests/*.js demo/tests/*.js
 ```
+
+## Repository Layout
+
+- Public import surface: `src/ktrace/index.js`
+- Public API implementation: `src/ktrace/api.js`
+- Internal helpers: `src/ktrace/{cli,colors,deps,format,output,selectors}.js`
+- Source-level behavior coverage: `tests/test_ktrace_js.js`
+- Demo CLI coverage: `demo/tests/`

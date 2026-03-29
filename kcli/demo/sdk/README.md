@@ -3,6 +3,9 @@
 The `demo/sdk/` files are reusable inline-parser examples used by the
 executable demos.
 
+Each module is intentionally self-contained. There is no shared demo helper
+layer under `demo/sdk/`.
+
 - `alpha.js`
   Provides the `--alpha-*` inline parser used by the core and omega demos.
 - `beta.js`

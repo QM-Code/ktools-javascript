@@ -1,5 +1,7 @@
 "use strict";
 
+// Public API surface for `require("./src/ktrace")`. Sibling modules implement
+// internal helpers and are not part of the user-facing import contract.
 const { COLOR_NAMES } = require("./colors");
 const { createTraceInlineParser } = require("./cli");
 const { formatMessage } = require("./format");
@@ -178,6 +180,17 @@ class Logger {
         writeLine(prefix, `${action} ignored channel selector '${selectorDisplay}' because it matched no registered channels`);
     }
 
+    _hasRegisteredChannel(qualifiedChannel) {
+        const dotIndex = qualifiedChannel.indexOf(".");
+        if (dotIndex < 0) {
+            return false;
+        }
+        const namespaceName = qualifiedChannel.slice(0, dotIndex);
+        const channelName = qualifiedChannel.slice(dotIndex + 1);
+        const namespaceMap = this._registered_channels.get(namespaceName);
+        return Boolean(namespaceMap && namespaceMap.has(channelName));
+    }
+
     _resolveLocalNamespace(arg) {
         if (arg instanceof TraceLogger) {
             return arg.getNamespace();
@@ -211,11 +224,13 @@ class Logger {
     }
 
     enableChannel(arg1, arg2) {
-        if (arg1 instanceof TraceLogger) {
-            this.enableChannels(arg2, arg1.getNamespace());
-            return;
+        const qualifiedChannel = parseQualifiedChannel(
+            arg1 instanceof TraceLogger ? arg2 : arg1,
+            this._resolveLocalNamespace(arg1 instanceof TraceLogger ? arg1 : arg2)
+        );
+        if (this._hasRegisteredChannel(qualifiedChannel)) {
+            this._enabled_channels.add(qualifiedChannel);
         }
-        this.enableChannels(arg1, arg2);
     }
 
     enableChannels(arg1, arg2) {
@@ -231,11 +246,13 @@ class Logger {
     }
 
     disableChannel(arg1, arg2) {
-        if (arg1 instanceof TraceLogger) {
-            this.disableChannels(arg2, arg1.getNamespace());
-            return;
+        const qualifiedChannel = parseQualifiedChannel(
+            arg1 instanceof TraceLogger ? arg2 : arg1,
+            this._resolveLocalNamespace(arg1 instanceof TraceLogger ? arg1 : arg2)
+        );
+        if (this._hasRegisteredChannel(qualifiedChannel)) {
+            this._enabled_channels.delete(qualifiedChannel);
         }
-        this.disableChannels(arg1, arg2);
     }
 
     disableChannels(arg1, arg2) {

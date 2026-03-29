@@ -2,9 +2,8 @@
 
 ## Mission
 
-Bring `ktools-javascript/kcli/` up to the C++ reference standard while keeping
-the implementation idiomatic for JavaScript and preserving the current
-CommonJS-based API shape.
+Make `ktools-javascript/kcli/` explicit, parity-checked, and easy to compare
+with the C++ reference while keeping the CommonJS-facing API simple.
 
 ## Required Reading
 
@@ -18,47 +17,49 @@ CommonJS-based API shape.
 
 ## Current Gaps
 
-- The source modules are already well split.
-- The repo is less explicit than C++ about public vs internal modules.
-- The demo SDK layout is flatter than the reference layout.
-- Tracked build output exists under `kcli/build/latest` and demo build trees.
-- The implementation needs a deliberate parity audit against the C++ contract.
+- Staged build output is still tracked under `kcli/build/latest` and demo build
+  trees.
+- The demo SDK layout remains flatter than the reference layout
+  (`demo/sdk/*.js` plus shared files) and is harder to compare directly with
+  the other languages.
+- The public/internal boundary is clearer than before, but the repo should make
+  that distinction even more obvious in docs and layout.
+- The parity audit against the C++ contract should remain explicit, not
+  inferred from passing tests alone.
 
 ## Work Plan
 
-1. Make source boundaries clearer.
-- Keep `api.js`, `model.js`, `normalize.js`, `process.js`, and related modules,
-  but consider introducing a clearer distinction between public surface and
-  internal-only modules.
-- Do not add abstraction layers unless they improve readability.
+1. Decide and enforce the staged-output policy.
+- Remove tracked build output if it does not need to be versioned.
+- If some staged SDK/test wrappers must remain, document that policy narrowly
+  and keep the tracked set minimal.
 
-2. Improve demo structure where it pays off.
-- Review whether `demo/sdk/*.js` and `demo/exe/common.js` should be reorganized
-  to mirror the reference layout more obviously.
+2. Revisit demo structure.
+- Review whether `demo/sdk/*.js` and shared executable helpers should be
+  rearranged to mirror the bootstrap/sdk/exe contract more obviously.
 - Preserve the current demo roles and names even if the file layout changes.
 
-3. Tighten tests around the reference contract.
-- Preserve the existing direct source tests and demo tests.
-- Add tests for any C++-documented behavior that is still implicit in JS.
-- Keep failures localized and readable.
+3. Keep the public/internal split explicit.
+- Make sure `src/kcli/api.js`, `src/kcli/index.js`, and `src/kcli/internal/`
+  tell a clear story about what consumers should import.
+- Tighten docs where the boundary still feels implicit.
 
-4. Clean repo hygiene.
-- Remove tracked build outputs from `build/latest` and `demo/**/build/latest`.
-- If any staged SDK content must remain versioned, document why and keep it
-  minimal.
+4. Continue the parity audit.
+- Verify help output, alias rewriting, inline roots, root value handling,
+  optional/required value behavior, double-dash rejection, and
+  validation-before-handlers against the C++ docs and case list.
+- Add focused tests for anything still covered only indirectly.
 
-5. Close behavior gaps.
-- Match C++ semantics for error handling, bare inline roots, alias rewriting,
-  value collection, and validation-before-handler execution.
-- Keep the public usage style simple and close to the current `Parser` and
-  `InlineParser` API.
+5. Keep the implementation readable.
+- Avoid abstraction layers that do not improve clarity.
+- Keep the exported API shape stable unless a change is clearly justified.
 
 ## Constraints
 
-- Preserve current user-facing API names unless a change is clearly justified.
-- Keep the implementation easy to read without converting it into framework
-  code.
-- Stay aligned with the reference demos and behavior docs.
+- Preserve current user-facing API names unless there is a strong reason to
+  change them.
+- Keep the repo easy to compare with the reference demos and docs.
+- Prefer explicitness over framework-heavy structure.
 
 ## Validation
 
@@ -69,6 +70,7 @@ CommonJS-based API shape.
 
 ## Done When
 
-- The module layout clearly communicates public vs internal responsibility.
-- Demo and test structure make JS easy to compare to the C++ reference.
-- Generated output no longer obscures the hand-written implementation.
+- Build output no longer obscures the hand-written implementation, or any
+  tracked staged output is explicitly justified.
+- Demo structure is easy to compare with the other languages.
+- Public/internal boundaries and behavior parity are obvious to reviewers.

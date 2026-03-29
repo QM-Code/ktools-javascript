@@ -32,6 +32,9 @@ Single-channel APIs accept:
 - `.channel[.sub[.sub]]` for local-namespace lookups
 - `namespace.channel[.sub[.sub]]` for explicit namespaces
 
+Single-channel APIs do not accept selector-list syntax such as `*`, `{}`, or
+CSV.
+
 Selector-list APIs accept comma-separated selector patterns including:
 
 - `*.*`

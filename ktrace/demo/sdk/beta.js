@@ -1,6 +1,6 @@
 "use strict";
 
-const { loadPackage } = require("./common");
+const { loadPackage } = require("../../src/ktrace/deps");
 
 const ktrace = loadPackage(__filename, "ktrace");
 

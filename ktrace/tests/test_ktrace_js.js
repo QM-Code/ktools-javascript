@@ -56,6 +56,22 @@ test("registered selectors only enable registered channels", () => {
     assert.equal(logger.shouldTraceChannel("tests.missing"), false);
 });
 
+test("exact channel APIs ignore missing channels and reject selector syntax", () => {
+    const logger = new ktrace.Logger();
+    const trace = new ktrace.TraceLogger("tests");
+    trace.addChannel("net");
+    logger.addTraceLogger(trace);
+
+    const output = captureStdout(() => {
+        logger.enableChannel("tests.missing");
+        logger.disableChannel("tests.missing");
+    });
+    assert.equal(output, "");
+    assert.equal(logger.shouldTraceChannel("tests.missing"), false);
+    assert.throws(() => logger.enableChannel("tests.*"), /invalid trace channel/);
+    assert.throws(() => logger.disableChannel("*.net"), /invalid trace channel/);
+});
+
 test("explicit enable and disable semantics work", () => {
     const logger = new ktrace.Logger();
     const trace = new ktrace.TraceLogger("tests");
@@ -69,6 +85,21 @@ test("explicit enable and disable semantics work", () => {
     assert.equal(logger.shouldTraceChannel("tests.net"), true);
     assert.equal(logger.shouldTraceChannel("tests.cache"), false);
     logger.disableChannel("tests.net");
+    assert.equal(logger.shouldTraceChannel("tests.net"), false);
+});
+
+test("trace logger overloads work for exact channel APIs", () => {
+    const logger = new ktrace.Logger();
+    const trace = new ktrace.TraceLogger("tests");
+    trace.addChannel("net");
+    trace.addChannel("cache");
+    logger.addTraceLogger(trace);
+
+    logger.enableChannel(trace, ".net");
+    assert.equal(logger.shouldTraceChannel("tests.net"), true);
+    assert.equal(logger.shouldTraceChannel("tests.cache"), false);
+
+    logger.disableChannel(trace, ".net");
     assert.equal(logger.shouldTraceChannel("tests.net"), false);
 });
 
@@ -86,6 +117,26 @@ test("trace logger overloads work for selector list APIs", () => {
     logger.disableChannels(trace, ".cache");
     assert.equal(logger.shouldTraceChannel("tests.net"), true);
     assert.equal(logger.shouldTraceChannel("tests.cache"), false);
+});
+
+test("trace logger merge semantics reject conflicting explicit colors", () => {
+    const logger = new ktrace.Logger();
+
+    const first = new ktrace.TraceLogger("tests");
+    first.addChannel("net");
+    logger.addTraceLogger(first);
+
+    const duplicate = new ktrace.TraceLogger("tests");
+    duplicate.addChannel("net");
+    logger.addTraceLogger(duplicate);
+
+    const explicitColor = new ktrace.TraceLogger("tests");
+    explicitColor.addChannel("net", ktrace.Color("Gold3"));
+    logger.addTraceLogger(explicitColor);
+
+    const conflictingColor = new ktrace.TraceLogger("tests");
+    conflictingColor.addChannel("net", ktrace.Color("Orange3"));
+    assert.throws(() => logger.addTraceLogger(conflictingColor), /conflicting explicit trace color/);
 });
 
 test("traceChanged suppresses repeated keys at one call site", () => {
@@ -107,6 +158,20 @@ test("traceChanged suppresses repeated keys at one call site", () => {
     const lines = output.trim().split("\n").filter(Boolean);
     assert.equal(lines.length, 2);
     assert(lines.every((line) => line.endsWith(" changed")));
+});
+
+test("function output option implies file and line output", () => {
+    const logger = new ktrace.Logger();
+    logger.setOutputOptions({
+        function_names: true,
+    });
+
+    assert.deepEqual(logger.getOutputOptions(), {
+        filenames: true,
+        line_numbers: true,
+        function_names: true,
+        timestamps: false,
+    });
 });
 
 test("info warn and error are always visible once attached", () => {

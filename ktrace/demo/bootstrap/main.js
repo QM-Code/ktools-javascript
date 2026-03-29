@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 
-const path = require("node:path");
-
-const { loadPackage } = require(path.join(__dirname, "..", "sdk", "common"));
+const { loadPackage } = require("../../src/ktrace/deps");
 
 const ktrace = loadPackage(__filename, "ktrace");
 

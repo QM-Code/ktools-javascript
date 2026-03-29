@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 
-const path = require("node:path");
-
-const { loadKcli } = require(path.join(__dirname, "..", "sdk", "common"));
+const { loadKcli } = require("../../src/kcli/deps");
 
 const kcli = loadKcli(__filename);
 

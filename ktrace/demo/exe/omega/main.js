@@ -3,12 +3,12 @@
 
 const path = require("node:path");
 
-const { loadPackage } = require(path.join(__dirname, "..", "..", "sdk", "common"));
+const { loadKcli, loadPackage } = require("../../../src/ktrace/deps");
 const alpha = require(path.join(__dirname, "..", "..", "sdk", "alpha"));
 const beta = require(path.join(__dirname, "..", "..", "sdk", "beta"));
 const gamma = require(path.join(__dirname, "..", "..", "sdk", "gamma"));
 
-const kcli = loadPackage(__filename, "kcli");
+const kcli = loadKcli(__filename);
 const ktrace = loadPackage(__filename, "ktrace");
 
 function main(argv) {

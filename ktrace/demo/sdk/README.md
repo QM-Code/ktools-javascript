@@ -3,6 +3,9 @@
 The `demo/sdk/` files are reusable tracing examples imported by the executable
 demos.
 
+Each demo module is intentionally self-contained so the layout is easy to
+compare with the other language workspaces.
+
 - `alpha.js`
   Exposes a shared `TraceLogger` with nested `net` and `cache` channels plus
   helper functions that emit trace and operational logs.

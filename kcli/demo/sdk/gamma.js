@@ -1,8 +1,21 @@
 "use strict";
 
-const { loadKcli, printProcessingLine } = require("./common");
+const { loadKcli } = require("../../src/kcli/deps");
 
 const kcli = loadKcli(__filename);
+
+function printProcessingLine(context, value) {
+    if (!context.value_tokens.length) {
+        console.log(`Processing ${context.option}`);
+        return;
+    }
+    if (context.value_tokens.length === 1) {
+        console.log(`Processing ${context.option} with value "${value}"`);
+        return;
+    }
+    const joined = context.value_tokens.map((token) => `"${token}"`).join(",");
+    console.log(`Processing ${context.option} with values [${joined}]`);
+}
 
 function handleStrict(context, value) {
     printProcessingLine(context, value);

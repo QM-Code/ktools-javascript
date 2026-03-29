@@ -14,6 +14,11 @@ From this repo:
 const ktrace = require("../src/ktrace");
 ```
 
+`src/ktrace/index.js` is the public CommonJS entrypoint. `src/ktrace/api.js`
+backs that entrypoint. The sibling helper modules under `src/ktrace/` are
+internal implementation files, even though the repo's own tests may reference
+`ktrace._internal` for focused behavior checks.
+
 ## `Color(name)`
 
 Validates and returns a supported color token.
@@ -125,6 +130,9 @@ logger.enableChannel(".app", "core");
 logger.enableChannel(appTrace, ".app");
 ```
 
+This exact-channel API does not accept wildcard, brace, or CSV selector syntax.
+Use `enableChannels(...)` for selector lists.
+
 #### `enableChannels(selectorsCsv, localNamespace?)`
 
 Enables selector-based channel sets.
@@ -144,6 +152,9 @@ logger.enableChannels(appTrace, ".app");
 #### `disableChannel(channel, localNamespace?)`
 
 Disables one exact channel.
+
+Like `enableChannel(...)`, this exact-channel API only accepts one concrete
+channel expression.
 
 #### `disableChannels(selectorsCsv, localNamespace?)`
 
