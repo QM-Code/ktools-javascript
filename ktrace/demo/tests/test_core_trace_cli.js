@@ -29,3 +29,15 @@ test("core timestamps option updates output format", () => {
     assert.equal(result.status, 0);
     assert.match(result.stdout, /\[core\] \[[0-9]+\.[0-9]{6}\] \[app\] cli processing enabled, use --trace for options/);
 });
+
+test("core trace files option includes file and line output", () => {
+    const result = runDemo("demo/exe/core/main.js", "--trace", ".app", "--trace-files");
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /\[core\] \[app\] \[main:\d+\] cli processing enabled, use --trace for options/);
+});
+
+test("core trace functions option includes file line and function output", () => {
+    const result = runDemo("demo/exe/core/main.js", "--trace", ".app", "--trace-functions");
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /\[core\] \[app\] \[main:\d+:main\] cli processing enabled, use --trace for options/);
+});

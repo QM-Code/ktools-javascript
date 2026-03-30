@@ -24,16 +24,26 @@ function baseNameWithoutExtension(filePath) {
     return path.basename(String(filePath || ""), path.extname(String(filePath || "")));
 }
 
+function normalizeStackPath(filePath) {
+    return String(filePath || "").replaceAll("\\", "/");
+}
+
 function captureSite() {
     const error = new Error();
     const stack = String(error.stack || "").split("\n").slice(1);
+    const internalDir = normalizeStackPath(__dirname) + "/";
     for (const line of stack) {
         const match = line.match(/\s*at\s+(?:(.*?)\s+\()?(.+?):(\d+):(\d+)\)?$/);
         if (!match) {
             continue;
         }
         const filePath = match[2];
-        if (!filePath || filePath.includes(path.join("ktrace", "src", "ktrace"))) {
+        if (!filePath) {
+            continue;
+        }
+        // Skip frames from the ktrace package itself so file/function output
+        // resolves to the application or demo callsite in both source and SDK builds.
+        if (normalizeStackPath(filePath).startsWith(internalDir)) {
             continue;
         }
         return {

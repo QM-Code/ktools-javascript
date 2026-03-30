@@ -38,6 +38,26 @@ test("omega trace colors includes the shared extended palette", () => {
     assert.match(result.stdout, /MediumOrchid1/);
 });
 
+test("omega trace namespaces lists local and imported namespaces", () => {
+    const result = runDemo("demo/exe/omega/main.js", "--trace-namespaces");
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Available trace namespaces:/);
+    assert.match(result.stdout, /(^|\n)  alpha\n/);
+    assert.match(result.stdout, /(^|\n)  beta\n/);
+    assert.match(result.stdout, /(^|\n)  gamma\n/);
+    assert.match(result.stdout, /(^|\n)  omega\n/);
+});
+
+test("omega trace channels lists local and imported channels", () => {
+    const result = runDemo("demo/exe/omega/main.js", "--trace-channels");
+    assert.equal(result.status, 0);
+    assert.match(result.stdout, /Available trace channels:/);
+    assert.match(result.stdout, /(^|\n)  alpha\.net\n/);
+    assert.match(result.stdout, /(^|\n)  beta\.scheduler\.tick\n/);
+    assert.match(result.stdout, /(^|\n)  gamma\.physics\n/);
+    assert.match(result.stdout, /(^|\n)  omega\.deep\.branch\.leaf\n/);
+});
+
 test("omega wildcard depth selector enables imported channels", () => {
     const result = runDemo("demo/exe/omega/main.js", "--trace", "*.*.*.*");
     assert.equal(result.status, 0);

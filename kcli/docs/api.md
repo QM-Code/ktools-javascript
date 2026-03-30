@@ -9,7 +9,7 @@
 
 ## Import
 
-From this repo:
+From this component:
 
 ```js
 const kcli = require("../src/kcli");

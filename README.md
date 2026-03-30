@@ -13,7 +13,7 @@ This workspace currently contains:
 
 ## Build Model
 
-This workspace uses the shared `kbuild` repo exposed on `PATH` as `kbuild`.
+This workspace uses the shared `kbuild` repository exposed on `PATH` as `kbuild`.
 
 From the workspace root:
 
@@ -22,7 +22,7 @@ kbuild --batch --build-latest
 kbuild --batch --clean-latest
 ```
 
-Use the relevant child repo when building or testing a specific implementation:
+Use the relevant child component when building or testing a specific implementation:
 
 ```bash
 cd ktrace
@@ -31,7 +31,7 @@ kbuild --build-latest
 
 ## Where To Go Next
 
-For concrete JavaScript API and implementation details, use the docs in the relevant child repo.
+For concrete JavaScript API and implementation details, use the docs in the relevant child component.
 
 Current implementations:
 

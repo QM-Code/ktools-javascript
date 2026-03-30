@@ -8,4 +8,4 @@ operations.
 - the checked-out workspace does not currently contain a separate `kbuild/`
   implementation directory
 - the expected entrypoint is the shared `kbuild` command on `PATH`
-- build orchestration should remain compatible with the shared repo-level tool
+- build orchestration should remain compatible with the shared workspace-level tool

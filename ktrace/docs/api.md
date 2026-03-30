@@ -8,7 +8,7 @@
 
 ## Import
 
-From this repo:
+From this component:
 
 ```js
 const ktrace = require("../src/ktrace");
@@ -16,7 +16,7 @@ const ktrace = require("../src/ktrace");
 
 `src/ktrace/index.js` is the public CommonJS entrypoint. `src/ktrace/api.js`
 backs that entrypoint. The sibling helper modules under `src/ktrace/` are
-internal implementation files, even though the repo's own tests may reference
+internal implementation files, even though the component's own tests may reference
 `ktrace._internal` for focused behavior checks.
 
 ## `Color(name)`

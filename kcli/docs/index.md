@@ -7,7 +7,7 @@ It is designed around two common CLI shapes:
 - top-level options such as `--verbose`
 - inline roots such as `--trace-*`, `--config-*`, and `--build-*`
 
-The implementation keeps the same core behavior model as the C++ repo while
+The implementation keeps the same core behavior model as the C++ component while
 using JavaScript calling conventions.
 
 ## Public Entry Points

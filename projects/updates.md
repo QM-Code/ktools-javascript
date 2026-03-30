@@ -5,6 +5,11 @@
 Keep `ktools-javascript/` explicit, parity-checked, and easy to compare with
 the C++ reference while keeping the CommonJS-facing APIs simple.
 
+Treat `ktrace/src/ktrace/output.js` callsite handling and the new
+`--trace-files` / `--trace-functions` / `--trace-namespaces` /
+`--trace-channels` demo coverage as already established. The remaining work is
+the broader next iteration across both components.
+
 ## Required Reading
 
 - `../ktools/AGENTS.md`
