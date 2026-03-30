@@ -12,8 +12,8 @@ using JavaScript calling conventions.
 
 ## Public Entry Points
 
-- `parseOrExit(argc, argv)` for normal executable startup
-- `parseOrThrow(argc, argv)` for callers that want to intercept `CliError`
+- `parseOrExit(argv)` for normal executable startup
+- `parseOrThrow(argv)` for callers that want to intercept `CliError`
 
 ## Quick Start
 
@@ -36,7 +36,7 @@ parser.setHandler("--verbose", () => {
     console.log("verbose enabled");
 }, "Enable verbose logging.");
 
-parser.parseOrExit(process.argv.length, process.argv);
+parser.parseOrExit(process.argv);
 ```
 
 ## What To Read Next

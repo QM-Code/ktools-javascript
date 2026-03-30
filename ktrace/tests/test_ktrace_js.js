@@ -34,12 +34,12 @@ test("format message supports placeholders and escaped braces", () => {
 });
 
 test("color names include the shared extended palette", () => {
-    assert.equal(ktrace.Color("MediumSpringGreen"), "MediumSpringGreen");
-    assert.equal(ktrace.Color("Orange3"), "Orange3");
-    assert.equal(ktrace.Color("MediumOrchid1"), "MediumOrchid1");
-    assert.equal(ktrace.Color("LightSkyBlue1"), "LightSkyBlue1");
-    assert.equal(ktrace.Color("default"), "default");
-    assert.throws(() => ktrace.Color("NoSuchColor"), /unknown trace color/);
+    assert.equal(ktrace.color("MediumSpringGreen"), "MediumSpringGreen");
+    assert.equal(ktrace.color("Orange3"), "Orange3");
+    assert.equal(ktrace.color("MediumOrchid1"), "MediumOrchid1");
+    assert.equal(ktrace.color("LightSkyBlue1"), "LightSkyBlue1");
+    assert.equal(ktrace.color("default"), "default");
+    assert.throws(() => ktrace.color("NoSuchColor"), /unknown trace color/);
 });
 
 test("registered selectors only enable registered channels", () => {
@@ -131,11 +131,11 @@ test("trace logger merge semantics reject conflicting explicit colors", () => {
     logger.addTraceLogger(duplicate);
 
     const explicitColor = new ktrace.TraceLogger("tests");
-    explicitColor.addChannel("net", ktrace.Color("Gold3"));
+    explicitColor.addChannel("net", ktrace.color("Gold3"));
     logger.addTraceLogger(explicitColor);
 
     const conflictingColor = new ktrace.TraceLogger("tests");
-    conflictingColor.addChannel("net", ktrace.Color("Orange3"));
+    conflictingColor.addChannel("net", ktrace.color("Orange3"));
     assert.throws(() => logger.addTraceLogger(conflictingColor), /conflicting explicit trace color/);
 });
 
@@ -163,13 +163,13 @@ test("traceChanged suppresses repeated keys at one call site", () => {
 test("function output option implies file and line output", () => {
     const logger = new ktrace.Logger();
     logger.setOutputOptions({
-        function_names: true,
+        functionNames: true,
     });
 
     assert.deepEqual(logger.getOutputOptions(), {
         filenames: true,
-        line_numbers: true,
-        function_names: true,
+        lineNumbers: true,
+        functionNames: true,
         timestamps: false,
     });
 });
@@ -180,7 +180,7 @@ test("info warn and error are always visible once attached", () => {
     logger.addTraceLogger(trace);
     logger.setOutputOptions({
         filenames: true,
-        line_numbers: true,
+        lineNumbers: true,
     });
 
     const output = captureStdout(() => {

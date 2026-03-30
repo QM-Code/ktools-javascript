@@ -38,8 +38,8 @@ function formatOptionErrorMessage(option, message) {
 function reportError(result, option, message) {
     if (result.ok) {
         result.ok = false;
-        result.error_option = option;
-        result.error_message = message;
+        result.errorOption = option;
+        result.errorMessage = message;
     }
 }
 
@@ -73,7 +73,7 @@ function parse(data, argc, argv) {
         if (arg[0] === "-" && !startsWith(arg, "--")) {
             aliasBinding = findAliasBinding(data, arg);
             if (aliasBinding !== null) {
-                effectiveArg = aliasBinding.target_token;
+                effectiveArg = aliasBinding.targetToken;
             }
         }
 
@@ -90,24 +90,24 @@ function parse(data, argc, argv) {
             if (inlineMatch.kind === InlineTokenKind.BARE_ROOT) {
                 consumeIndex(consumed, index);
                 const collected = collectValueTokens(index, tokens, consumed, false);
-                if (!collected.has_value && !hasAliasPresetTokens(aliasBinding)) {
+                if (!collected.hasValue && !hasAliasPresetTokens(aliasBinding)) {
                     const help = createInvocation();
                     help.kind = InvocationKind.PRINT_HELP;
-                    help.root = inlineMatch.parser.root_name;
-                    help.help_rows = buildHelpRows(inlineMatch.parser);
+                    help.root = inlineMatch.parser.rootName;
+                    help.helpRows = buildHelpRows(inlineMatch.parser);
                     invocations.push(help);
-                } else if (!inlineMatch.parser.root_value_handler) {
+                } else if (!inlineMatch.parser.rootValueHandler) {
                     reportError(result, effectiveArg, `unknown value for option '${effectiveArg}'`);
                 } else {
                     const invocation = createInvocation();
                     invocation.kind = InvocationKind.VALUE;
-                    invocation.root = inlineMatch.parser.root_name;
+                    invocation.root = inlineMatch.parser.rootName;
                     invocation.option = effectiveArg;
-                    invocation.value_handler = inlineMatch.parser.root_value_handler;
-                    invocation.value_tokens = buildEffectiveValueTokens(aliasBinding, collected.parts);
+                    invocation.valueHandler = inlineMatch.parser.rootValueHandler;
+                    invocation.valueTokens = buildEffectiveValueTokens(aliasBinding, collected.parts);
                     invocations.push(invocation);
-                    if (collected.has_value) {
-                        index = collected.last_index;
+                    if (collected.hasValue) {
+                        index = collected.lastIndex;
                     }
                 }
             } else if (inlineMatch.kind === InlineTokenKind.DASH_OPTION) {
@@ -116,7 +116,7 @@ function parse(data, argc, argv) {
                     index = scheduleInvocation({
                         binding,
                         aliasBinding,
-                        root: inlineMatch.parser.root_name,
+                        root: inlineMatch.parser.rootName,
                         command: inlineMatch.suffix,
                         optionToken: effectiveArg,
                         index,

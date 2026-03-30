@@ -22,15 +22,15 @@ const ktrace = require("../src/ktrace");
 const logger = new ktrace.Logger();
 const trace = new ktrace.TraceLogger("core");
 
-trace.addChannel("app", ktrace.Color("BrightCyan"));
-trace.addChannel("startup", ktrace.Color("BrightYellow"));
+trace.addChannel("app", ktrace.color("BrightCyan"));
+trace.addChannel("startup", ktrace.color("BrightYellow"));
 
 logger.addTraceLogger(trace);
 logger.enableChannel(trace, ".app");
 
 const parser = new kcli.Parser();
 parser.addInlineParser(logger.makeInlineParser(trace));
-parser.parseOrExit(process.argv.length, process.argv);
+parser.parseOrExit(process.argv);
 
 trace.trace("app", "cli initialized");
 trace.info("service started");

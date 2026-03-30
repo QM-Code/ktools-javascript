@@ -67,8 +67,8 @@ explicit namespace and declare channels on it:
 
 ```js
 const trace = new ktrace.TraceLogger("alpha");
-trace.addChannel("net", ktrace.Color("DeepSkyBlue1"));
-trace.addChannel("cache", ktrace.Color("Gold3"));
+trace.addChannel("net", ktrace.color("DeepSkyBlue1"));
+trace.addChannel("cache", ktrace.color("Gold3"));
 ```
 
 SDKs should usually expose a shared logger from `getTraceLogger()`:
@@ -77,8 +77,8 @@ SDKs should usually expose a shared logger from `getTraceLogger()`:
 function getTraceLogger() {
     if (!getTraceLogger._logger) {
         const trace = new ktrace.TraceLogger("alpha");
-        trace.addChannel("net", ktrace.Color("DeepSkyBlue1"));
-        trace.addChannel("cache", ktrace.Color("Gold3"));
+        trace.addChannel("net", ktrace.color("DeepSkyBlue1"));
+        trace.addChannel("cache", ktrace.color("Gold3"));
         getTraceLogger._logger = trace;
     }
     return getTraceLogger._logger;
@@ -93,8 +93,8 @@ filtering, formatting, and final output:
 const logger = new ktrace.Logger();
 
 const appTrace = new ktrace.TraceLogger("core");
-appTrace.addChannel("app", ktrace.Color("BrightCyan"));
-appTrace.addChannel("startup", ktrace.Color("BrightYellow"));
+appTrace.addChannel("app", ktrace.color("BrightCyan"));
+appTrace.addChannel("startup", ktrace.color("BrightYellow"));
 
 logger.addTraceLogger(appTrace);
 logger.addTraceLogger(alpha.getTraceLogger());
@@ -135,14 +135,14 @@ namespace:
 ```js
 const logger = new ktrace.Logger();
 const appTrace = new ktrace.TraceLogger("core");
-appTrace.addChannel("app", ktrace.Color("BrightCyan"));
+appTrace.addChannel("app", ktrace.color("BrightCyan"));
 
 logger.addTraceLogger(appTrace);
 
 const parser = new kcli.Parser();
 parser.addInlineParser(logger.makeInlineParser(appTrace));
 
-parser.parseOrExit(process.argv.length, process.argv);
+parser.parseOrExit(process.argv);
 ```
 
 ## Channel Expression Forms

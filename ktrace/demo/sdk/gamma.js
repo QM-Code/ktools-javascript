@@ -7,8 +7,8 @@ const ktrace = loadPackage(__filename, "ktrace");
 function getTraceLogger() {
     if (!getTraceLogger._logger) {
         const trace = new ktrace.TraceLogger("gamma");
-        trace.addChannel("physics", ktrace.Color("MediumOrchid1"));
-        trace.addChannel("metrics", ktrace.Color("LightSkyBlue1"));
+        trace.addChannel("physics", ktrace.color("MediumOrchid1"));
+        trace.addChannel("metrics", ktrace.color("LightSkyBlue1"));
         getTraceLogger._logger = trace;
     }
     return getTraceLogger._logger;

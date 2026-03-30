@@ -150,8 +150,8 @@ function normalizeDescriptionOrThrow(rawDescription) {
 function makeError(option, message) {
     return {
         ok: false,
-        error_option: option,
-        error_message: message,
+        errorOption: option,
+        errorMessage: message,
     };
 }
 
@@ -159,7 +159,7 @@ function throwCliError(result) {
     if (result.ok) {
         throw new Error("kcli internal error: ThrowCliError called without a failure");
     }
-    throw new CliError(result.error_option, result.error_message);
+    throw new CliError(result.errorOption, result.errorMessage);
 }
 
 function validateHandlerArity(handler, minimum, emptyMessage) {

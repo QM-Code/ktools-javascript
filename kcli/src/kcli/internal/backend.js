@@ -19,15 +19,15 @@ const {
 
 function cloneInlineParserData(data) {
     const clone = createInlineParserData();
-    clone.root_name = data.root_name;
-    clone.root_value_handler = data.root_value_handler;
-    clone.root_value_placeholder = data.root_value_placeholder;
-    clone.root_value_description = data.root_value_description;
+    clone.rootName = data.rootName;
+    clone.rootValueHandler = data.rootValueHandler;
+    clone.rootValuePlaceholder = data.rootValuePlaceholder;
+    clone.rootValueDescription = data.rootValueDescription;
     clone.commands = data.commands.map(([name, binding]) => [name, {
-        expects_value: binding.expects_value,
-        flag_handler: binding.flag_handler,
-        value_handler: binding.value_handler,
-        value_arity: binding.value_arity,
+        expectsValue: binding.expectsValue,
+        flagHandler: binding.flagHandler,
+        valueHandler: binding.valueHandler,
+        valueArity: binding.valueArity,
         description: binding.description,
     }]);
     return clone;
@@ -36,8 +36,8 @@ function cloneInlineParserData(data) {
 function makeFlagBinding(handler, description) {
     validateHandlerArity(handler, 1, "kcli flag handler must not be empty");
     const binding = createCommandBinding();
-    binding.expects_value = false;
-    binding.flag_handler = handler;
+    binding.expectsValue = false;
+    binding.flagHandler = handler;
     binding.description = normalizeDescriptionOrThrow(description);
     return binding;
 }
@@ -45,9 +45,9 @@ function makeFlagBinding(handler, description) {
 function makeValueBinding(handler, description, arity) {
     validateHandlerArity(handler, 2, "kcli value handler must not be empty");
     const binding = createCommandBinding();
-    binding.expects_value = true;
-    binding.value_handler = handler;
-    binding.value_arity = arity;
+    binding.expectsValue = true;
+    binding.valueHandler = handler;
+    binding.valueArity = arity;
     binding.description = normalizeDescriptionOrThrow(description);
     return binding;
 }
@@ -62,43 +62,43 @@ function upsertCommand(commands, command, binding) {
 }
 
 function setInlineRoot(data, root) {
-    data.root_name = normalizeInlineRootOptionOrThrow(root);
+    data.rootName = normalizeInlineRootOptionOrThrow(root);
 }
 
 function setRootValueHandler(data, handler) {
     validateHandlerArity(handler, 2, "kcli root value handler must not be empty");
-    data.root_value_handler = handler;
-    data.root_value_placeholder = "";
-    data.root_value_description = "";
+    data.rootValueHandler = handler;
+    data.rootValuePlaceholder = "";
+    data.rootValueDescription = "";
 }
 
 function setRootValueHandlerWithHelp(data, handler, valuePlaceholder, description) {
     validateHandlerArity(handler, 2, "kcli root value handler must not be empty");
-    data.root_value_handler = handler;
-    data.root_value_placeholder = normalizeHelpPlaceholderOrThrow(valuePlaceholder);
-    data.root_value_description = normalizeDescriptionOrThrow(description);
+    data.rootValueHandler = handler;
+    data.rootValuePlaceholder = normalizeHelpPlaceholderOrThrow(valuePlaceholder);
+    data.rootValueDescription = normalizeDescriptionOrThrow(description);
 }
 
 function setInlineHandlerFlag(data, option, handler, description) {
-    const command = normalizeInlineHandlerOptionOrThrow(option, data.root_name);
+    const command = normalizeInlineHandlerOptionOrThrow(option, data.rootName);
     upsertCommand(data.commands, command, makeFlagBinding(handler, description));
 }
 
 function setInlineHandlerValue(data, option, handler, description) {
-    const command = normalizeInlineHandlerOptionOrThrow(option, data.root_name);
+    const command = normalizeInlineHandlerOptionOrThrow(option, data.rootName);
     upsertCommand(data.commands, command, makeValueBinding(handler, description, ValueArity.REQUIRED));
 }
 
 function setInlineOptionalValueHandler(data, option, handler, description) {
-    const command = normalizeInlineHandlerOptionOrThrow(option, data.root_name);
+    const command = normalizeInlineHandlerOptionOrThrow(option, data.rootName);
     upsertCommand(data.commands, command, makeValueBinding(handler, description, ValueArity.OPTIONAL));
 }
 
 function setAlias(data, alias, target, presetTokens) {
     const normalizedBinding = createAliasBinding();
     normalizedBinding.alias = normalizeAliasOrThrow(alias);
-    normalizedBinding.target_token = normalizeAliasTargetOptionOrThrow(target);
-    normalizedBinding.preset_tokens = Array.from(presetTokens || [], (token) => String(token));
+    normalizedBinding.targetToken = normalizeAliasTargetOptionOrThrow(target);
+    normalizedBinding.presetTokens = Array.from(presetTokens || [], (token) => String(token));
     const index = data.aliases.findIndex((binding) => binding.alias === normalizedBinding.alias);
     if (index >= 0) {
         data.aliases[index] = normalizedBinding;
@@ -124,14 +124,14 @@ function setPrimaryOptionalValueHandler(data, option, handler, description) {
 
 function setPositionalHandler(data, handler) {
     validateHandlerArity(handler, 1, "kcli positional handler must not be empty");
-    data.positional_handler = handler;
+    data.positionalHandler = handler;
 }
 
 function addInlineParser(data, parser) {
-    if (data.inline_parsers.some((existing) => existing.root_name === parser.root_name)) {
-        throw new Error(`kcli inline parser root '--${parser.root_name}' is already registered`);
+    if (data.inlineParsers.some((existing) => existing.rootName === parser.rootName)) {
+        throw new Error(`kcli inline parser root '--${parser.rootName}' is already registered`);
     }
-    data.inline_parsers.push(parser);
+    data.inlineParsers.push(parser);
 }
 
 module.exports = {

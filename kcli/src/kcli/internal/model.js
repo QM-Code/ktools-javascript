@@ -5,12 +5,12 @@ class HandlerContext {
         root = "",
         option = "",
         command = "",
-        value_tokens = [],
+        valueTokens = [],
     } = {}) {
         this.root = root;
         this.option = option;
         this.command = command;
-        this.value_tokens = Array.from(value_tokens);
+        this.valueTokens = Array.from(valueTokens);
     }
 }
 
@@ -33,10 +33,10 @@ const ValueArity = Object.freeze({
 
 function createCommandBinding() {
     return {
-        expects_value: false,
-        flag_handler: null,
-        value_handler: null,
-        value_arity: ValueArity.REQUIRED,
+        expectsValue: false,
+        flagHandler: null,
+        valueHandler: null,
+        valueArity: ValueArity.REQUIRED,
         description: "",
     };
 }
@@ -44,43 +44,43 @@ function createCommandBinding() {
 function createAliasBinding() {
     return {
         alias: "",
-        target_token: "",
-        preset_tokens: [],
+        targetToken: "",
+        presetTokens: [],
     };
 }
 
 function createInlineParserData() {
     return {
-        root_name: "",
-        root_value_handler: null,
-        root_value_placeholder: "",
-        root_value_description: "",
+        rootName: "",
+        rootValueHandler: null,
+        rootValuePlaceholder: "",
+        rootValueDescription: "",
         commands: [],
     };
 }
 
 function createParserData() {
     return {
-        positional_handler: null,
+        positionalHandler: null,
         aliases: [],
         commands: [],
-        inline_parsers: [],
+        inlineParsers: [],
     };
 }
 
 function createParseOutcome() {
     return {
         ok: true,
-        error_option: "",
-        error_message: "",
+        errorOption: "",
+        errorMessage: "",
     };
 }
 
 function createCollectedValues(optionIndex) {
     return {
-        has_value: false,
+        hasValue: false,
         parts: [],
-        last_index: optionIndex,
+        lastIndex: optionIndex,
     };
 }
 
@@ -88,7 +88,7 @@ const InvocationKind = Object.freeze({
     FLAG: "flag",
     VALUE: "value",
     POSITIONAL: "positional",
-    PRINT_HELP: "print_help",
+    PRINT_HELP: "printHelp",
 });
 
 function createInvocation() {
@@ -97,18 +97,18 @@ function createInvocation() {
         root: "",
         option: "",
         command: "",
-        value_tokens: [],
-        flag_handler: null,
-        value_handler: null,
-        positional_handler: null,
-        help_rows: [],
+        valueTokens: [],
+        flagHandler: null,
+        valueHandler: null,
+        positionalHandler: null,
+        helpRows: [],
     };
 }
 
 const InlineTokenKind = Object.freeze({
     NONE: "none",
-    BARE_ROOT: "bare_root",
-    DASH_OPTION: "dash_option",
+    BARE_ROOT: "bareRoot",
+    DASH_OPTION: "dashOption",
 });
 
 function createInlineTokenMatch() {

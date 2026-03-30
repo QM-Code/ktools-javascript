@@ -5,13 +5,13 @@ const { ValueArity } = require("./model");
 function printHelp(invocation) {
     let output = `\nAvailable --${invocation.root}-* options:\n`;
     let maxLhs = 0;
-    for (const [lhs] of invocation.help_rows) {
+    for (const [lhs] of invocation.helpRows) {
         maxLhs = Math.max(maxLhs, lhs.length);
     }
-    if (invocation.help_rows.length === 0) {
+    if (invocation.helpRows.length === 0) {
         output += "  (no options registered)\n";
     } else {
-        for (const [lhs, rhs] of invocation.help_rows) {
+        for (const [lhs, rhs] of invocation.helpRows) {
             const padding = maxLhs > lhs.length ? maxLhs - lhs.length : 0;
             output += `  ${lhs}${" ".repeat(padding + 2)}${rhs}\n`;
         }
@@ -21,21 +21,21 @@ function printHelp(invocation) {
 }
 
 function buildHelpRows(parser) {
-    const prefix = `--${parser.root_name}-`;
+    const prefix = `--${parser.rootName}-`;
     const rows = [];
-    if (parser.root_value_handler && parser.root_value_description) {
-        let lhs = `--${parser.root_name}`;
-        if (parser.root_value_placeholder) {
-            lhs += ` ${parser.root_value_placeholder}`;
+    if (parser.rootValueHandler && parser.rootValueDescription) {
+        let lhs = `--${parser.rootName}`;
+        if (parser.rootValuePlaceholder) {
+            lhs += ` ${parser.rootValuePlaceholder}`;
         }
-        rows.push([lhs, parser.root_value_description]);
+        rows.push([lhs, parser.rootValueDescription]);
     }
     for (const [command, binding] of parser.commands) {
         let lhs = prefix + command;
-        if (binding.expects_value) {
-            if (binding.value_arity === ValueArity.OPTIONAL) {
+        if (binding.expectsValue) {
+            if (binding.valueArity === ValueArity.OPTIONAL) {
                 lhs += " [value]";
-            } else if (binding.value_arity === ValueArity.REQUIRED) {
+            } else if (binding.valueArity === ValueArity.REQUIRED) {
                 lhs += " <value>";
             }
         }

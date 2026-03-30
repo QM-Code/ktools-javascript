@@ -4,7 +4,7 @@
 
 - `TraceLogger`
 - `Logger`
-- `Color(name)`
+- `color(name)`
 
 ## Import
 
@@ -19,15 +19,15 @@ backs that entrypoint. The sibling helper modules under `src/ktrace/` are
 internal implementation files, even though the component's own tests may reference
 `ktrace._internal` for focused behavior checks.
 
-## `Color(name)`
+## `color(name)`
 
 Validates and returns a supported color token.
 
 ```js
-const accent = ktrace.Color("BrightCyan");
+const accent = ktrace.color("BrightCyan");
 ```
 
-`Color(name)` accepts the shared extended palette exposed by
+`color(name)` accepts the shared extended palette exposed by
 `--trace-colors`. Representative examples include:
 
 - `Default`
@@ -56,7 +56,7 @@ const trace = new ktrace.TraceLogger("alpha");
 Registers a channel path inside the logger namespace.
 
 ```js
-trace.addChannel("net", ktrace.Color("DeepSkyBlue1"));
+trace.addChannel("net", ktrace.color("DeepSkyBlue1"));
 trace.addChannel("cache");
 trace.addChannel("cache.delta");
 ```
@@ -182,19 +182,19 @@ Configures output formatting.
 Supported fields:
 
 - `filenames`
-- `line_numbers`
-- `function_names`
+- `lineNumbers`
+- `functionNames`
 - `timestamps`
 
 ```js
 logger.setOutputOptions({
     filenames: true,
-    line_numbers: true,
+    lineNumbers: true,
     timestamps: true,
 });
 ```
 
-If `function_names` is enabled, filenames and line numbers are enabled automatically.
+If `functionNames` is enabled, filenames and line numbers are enabled automatically.
 
 #### `getOutputOptions()`
 
@@ -260,15 +260,15 @@ const ktrace = require("../src/ktrace");
 const logger = new ktrace.Logger();
 const trace = new ktrace.TraceLogger("core");
 
-trace.addChannel("app", ktrace.Color("BrightCyan"));
-trace.addChannel("startup", ktrace.Color("BrightYellow"));
+trace.addChannel("app", ktrace.color("BrightCyan"));
+trace.addChannel("startup", ktrace.color("BrightYellow"));
 
 logger.addTraceLogger(trace);
 logger.enableChannel(trace, ".app");
 
 const parser = new kcli.Parser();
 parser.addInlineParser(logger.makeInlineParser(trace));
-parser.parseOrExit(process.argv.length, process.argv);
+parser.parseOrExit(process.argv);
 
 trace.trace("app", "cli initialized");
 trace.info("service started");

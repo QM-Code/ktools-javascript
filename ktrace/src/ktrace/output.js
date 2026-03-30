@@ -5,8 +5,8 @@ const path = require("node:path");
 function createOutputOptions() {
     return {
         filenames: false,
-        line_numbers: false,
-        function_names: false,
+        lineNumbers: false,
+        functionNames: false,
         timestamps: false,
     };
 }
@@ -14,8 +14,8 @@ function createOutputOptions() {
 function cloneOutputOptions(options) {
     return {
         filenames: Boolean(options && options.filenames),
-        line_numbers: Boolean(options && options.line_numbers),
-        function_names: Boolean(options && options.function_names),
+        lineNumbers: Boolean(options && options.lineNumbers),
+        functionNames: Boolean(options && options.functionNames),
         timestamps: Boolean(options && options.timestamps),
     };
 }
@@ -50,14 +50,14 @@ function captureSite() {
             file: filePath,
             line: Number.parseInt(match[3], 10),
             column: Number.parseInt(match[4], 10),
-            function_name: match[1] || "",
+            functionName: match[1] || "",
         };
     }
     return {
         file: "",
         line: 0,
         column: 0,
-        function_name: "",
+        functionName: "",
     };
 }
 
@@ -67,16 +67,16 @@ function formatTimestamp() {
 
 function buildPrefix(logger, traceNamespace, label, site) {
     const parts = [`[${traceNamespace}]`];
-    const options = logger._output_options;
+    const options = logger._outputOptions;
     if (options.timestamps) {
         parts.push(`[${formatTimestamp()}]`);
     }
     parts.push(`[${label}]`);
     if (options.filenames) {
         const fileBase = baseNameWithoutExtension(site.file);
-        if (options.function_names) {
-            parts.push(`[${fileBase}:${site.line}:${site.function_name || "<anonymous>"}]`);
-        } else if (options.line_numbers) {
+        if (options.functionNames) {
+            parts.push(`[${fileBase}:${site.line}:${site.functionName || "<anonymous>"}]`);
+        } else if (options.lineNumbers) {
             parts.push(`[${fileBase}:${site.line}]`);
         } else {
             parts.push(`[${fileBase}]`);

@@ -8,8 +8,8 @@ It is used by `ktrace`, and is designed around two common CLI shapes:
 
 The library gives you two explicit entrypoints:
 
-- `parseOrExit(argc, argv)` for normal executable startup
-- `parseOrThrow(argc, argv)` when the caller wants to intercept `CliError`
+- `parseOrExit(argv)` for normal executable startup
+- `parseOrThrow(argv)` when the caller wants to intercept `CliError`
 
 ## Documentation
 
@@ -43,7 +43,7 @@ parser.addInlineParser(build);
 parser.addAlias("-v", "--verbose");
 parser.setHandler("--verbose", handleVerbose, "Enable verbose logging.");
 
-parser.parseOrExit(process.argv.length, process.argv);
+parser.parseOrExit(process.argv);
 ```
 
 ## Behavior Highlights

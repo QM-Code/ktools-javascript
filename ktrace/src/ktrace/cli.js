@@ -85,13 +85,13 @@ function createTraceInlineParser({ logger, localTraceLogger, traceRoot, colorNam
     parser.setHandler("-files", () => {
         const options = logger.getOutputOptions();
         options.filenames = true;
-        options.line_numbers = true;
+        options.lineNumbers = true;
         logger.setOutputOptions(options);
     }, "Include source file and line in trace output.");
 
     parser.setHandler("-functions", () => {
         const options = logger.getOutputOptions();
-        options.function_names = true;
+        options.functionNames = true;
         logger.setOutputOptions(options);
     }, "Include function names in trace output.");
 

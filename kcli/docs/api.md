@@ -72,7 +72,7 @@ Registers a handler that receives all unconsumed positional tokens after validat
 
 ```js
 parser.setPositionalHandler((context) => {
-    console.log(context.value_tokens);
+    console.log(context.valueTokens);
 });
 ```
 
@@ -85,11 +85,11 @@ const build = new kcli.InlineParser("--build");
 parser.addInlineParser(build);
 ```
 
-#### `parseOrThrow(argc, argv)`
+#### `parseOrThrow(argv)`
 
 Validates the full command line and runs handlers. Throws `CliError` on CLI failures.
 
-#### `parseOrExit(argc, argv)`
+#### `parseOrExit(argv)`
 
 Same behavior as `parseOrThrow`, but reports the CLI error to `stderr` and exits with code `2`.
 
@@ -162,7 +162,7 @@ Context object passed to handlers.
 - `root`: inline root without the leading `--`, or `""` for top-level options
 - `option`: the matched option token, such as `"--verbose"` or `"--trace-files"`
 - `command`: normalized command name without leading dashes
-- `value_tokens`: collected value tokens before joining
+- `valueTokens`: collected value tokens before joining
 
 ## `CliError`
 
@@ -176,7 +176,7 @@ Returns the option token that caused the failure when available.
 
 ```js
 try {
-    parser.parseOrThrow(argv.length, argv);
+    parser.parseOrThrow(argv);
 } catch (error) {
     if (error instanceof kcli.CliError) {
         console.error(error.option(), error.message);

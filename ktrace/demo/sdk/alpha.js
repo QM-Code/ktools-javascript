@@ -7,15 +7,15 @@ const ktrace = loadPackage(__filename, "ktrace");
 function getTraceLogger() {
     if (!getTraceLogger._logger) {
         const trace = new ktrace.TraceLogger("alpha");
-        trace.addChannel("net", ktrace.Color("DeepSkyBlue1"));
+        trace.addChannel("net", ktrace.color("DeepSkyBlue1"));
         trace.addChannel("net.alpha");
         trace.addChannel("net.beta");
         trace.addChannel("net.gamma");
         trace.addChannel("net.gamma.deep");
-        trace.addChannel("cache", ktrace.Color("Gold3"));
-        trace.addChannel("cache.gamma", ktrace.Color("Gold3"));
+        trace.addChannel("cache", ktrace.color("Gold3"));
+        trace.addChannel("cache.gamma", ktrace.color("Gold3"));
         trace.addChannel("cache.delta");
-        trace.addChannel("cache.special", ktrace.Color("Red"));
+        trace.addChannel("cache.special", ktrace.color("Red"));
         getTraceLogger._logger = trace;
     }
     return getTraceLogger._logger;

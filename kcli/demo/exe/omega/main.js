@@ -70,7 +70,7 @@ function main(argv) {
     parser.setHandler("--verbose", handleVerbose, "Enable verbose app logging.");
     parser.setHandler("--output", handleOutput, "Set app output target.");
     parser.setPositionalHandler(handleArgs);
-    parser.parseOrExit(tokens.length, tokens);
+    parser.parseOrExit(tokens);
 
     console.log("\nUsage:");
     console.log(`  ${exeName} --<root>\n`);

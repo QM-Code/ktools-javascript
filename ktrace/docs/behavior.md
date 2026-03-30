@@ -63,11 +63,11 @@ It does not support fmt-style specifiers such as `{:x}`.
 `Logger#setOutputOptions(...)` supports:
 
 - `filenames`
-- `line_numbers`
-- `function_names`
+- `lineNumbers`
+- `functionNames`
 - `timestamps`
 
-If `function_names` is enabled, filenames and line numbers are enabled
+If `functionNames` is enabled, filenames and line numbers are enabled
 automatically.
 
 The `makeInlineParser(...)` helper exposes the corresponding CLI switches:
@@ -78,7 +78,7 @@ The `makeInlineParser(...)` helper exposes the corresponding CLI switches:
 
 ## Color Names
 
-`Color(name)` accepts the shared extended named palette used by the JavaScript
+`color(name)` accepts the shared extended named palette used by the JavaScript
 implementation and listed by `--trace-colors`.
 
 Representative examples:

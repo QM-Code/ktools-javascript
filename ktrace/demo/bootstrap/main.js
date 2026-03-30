@@ -10,7 +10,7 @@ function main(argv) {
 
     const logger = new ktrace.Logger();
     const trace = new ktrace.TraceLogger("bootstrap");
-    trace.addChannel("bootstrap", ktrace.Color("BrightGreen"));
+    trace.addChannel("bootstrap", ktrace.color("BrightGreen"));
     logger.addTraceLogger(trace);
     logger.enableChannel(trace, ".bootstrap");
     trace.trace("bootstrap", "ktrace bootstrap staged-SDK check");

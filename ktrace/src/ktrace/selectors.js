@@ -128,9 +128,9 @@ function parseSelectorToken(rawToken, localNamespace) {
     }
 
     return {
-        any_namespace: anyNamespace,
-        trace_namespace: namespaceName,
-        channel_tokens: channelTokens,
+        anyNamespace,
+        traceNamespace: namespaceName,
+        channelTokens,
         display: namespaceToken === "" ? `${namespaceName}.${channelPattern}` : token,
     };
 }
@@ -187,20 +187,20 @@ function selectorMatchesQualifiedChannel(selector, qualifiedChannel) {
     const namespaceName = qualifiedChannel.slice(0, dotIndex);
     const channelTokens = qualifiedChannel.slice(dotIndex + 1).split(".");
 
-    if (!selector.any_namespace && selector.trace_namespace !== namespaceName) {
+    if (!selector.anyNamespace && selector.traceNamespace !== namespaceName) {
         return false;
     }
-    if (channelTokens.length > selector.channel_tokens.length) {
+    if (channelTokens.length > selector.channelTokens.length) {
         return false;
     }
     if (
-        channelTokens.length < selector.channel_tokens.length &&
-        !selector.channel_tokens.every((token) => token === "*")
+        channelTokens.length < selector.channelTokens.length &&
+        !selector.channelTokens.every((token) => token === "*")
     ) {
         return false;
     }
     for (let index = 0; index < channelTokens.length; index += 1) {
-        const selectorToken = selector.channel_tokens[index];
+        const selectorToken = selector.channelTokens[index];
         if (selectorToken !== "*" && selectorToken !== channelTokens[index]) {
             return false;
         }

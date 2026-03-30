@@ -14,8 +14,8 @@ function main(argv) {
 
     const logger = new ktrace.Logger();
     const trace = new ktrace.TraceLogger("core");
-    trace.addChannel("app", ktrace.Color("BrightCyan"));
-    trace.addChannel("startup", ktrace.Color("BrightYellow"));
+    trace.addChannel("app", ktrace.color("BrightCyan"));
+    trace.addChannel("startup", ktrace.color("BrightYellow"));
 
     logger.addTraceLogger(trace);
     logger.addTraceLogger(alpha.getTraceLogger());
@@ -25,7 +25,7 @@ function main(argv) {
 
     const parser = new kcli.Parser();
     parser.addInlineParser(logger.makeInlineParser(trace));
-    parser.parseOrExit(tokens.length, tokens);
+    parser.parseOrExit(tokens);
 
     trace.trace("app", "cli processing enabled, use --trace for options");
     trace.trace("startup", "testing imported tracing, use --trace '*.*' to view imported channels");

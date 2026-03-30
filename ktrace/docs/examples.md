@@ -18,8 +18,8 @@ const ktrace = require("../src/ktrace");
 function getTraceLogger() {
     if (!getTraceLogger._logger) {
         const trace = new ktrace.TraceLogger("alpha");
-        trace.addChannel("net", ktrace.Color("DeepSkyBlue1"));
-        trace.addChannel("cache", ktrace.Color("Gold3"));
+        trace.addChannel("net", ktrace.color("DeepSkyBlue1"));
+        trace.addChannel("cache", ktrace.color("Gold3"));
         getTraceLogger._logger = trace;
     }
     return getTraceLogger._logger;
@@ -36,15 +36,15 @@ const alpha = require("../demo/sdk/alpha");
 const logger = new ktrace.Logger();
 const trace = new ktrace.TraceLogger("core");
 
-trace.addChannel("app", ktrace.Color("BrightCyan"));
-trace.addChannel("startup", ktrace.Color("BrightYellow"));
+trace.addChannel("app", ktrace.color("BrightCyan"));
+trace.addChannel("startup", ktrace.color("BrightYellow"));
 
 logger.addTraceLogger(trace);
 logger.addTraceLogger(alpha.getTraceLogger());
 
 const parser = new kcli.Parser();
 parser.addInlineParser(logger.makeInlineParser(trace));
-parser.parseOrExit(process.argv.length, process.argv);
+parser.parseOrExit(process.argv);
 ```
 
 ## Selector Control
@@ -60,7 +60,7 @@ logger.disableChannels(trace, ".startup");
 ```js
 logger.setOutputOptions({
     filenames: true,
-    line_numbers: true,
+    lineNumbers: true,
     timestamps: true,
 });
 ```

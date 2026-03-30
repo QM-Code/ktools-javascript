@@ -36,7 +36,7 @@ function scheduleInvocation({
     invocation.option = optionToken;
     invocation.command = command;
 
-    if (!binding.expects_value) {
+    if (!binding.expectsValue) {
         if (hasAliasPresetTokens(aliasBinding)) {
             setError(
                 aliasBinding.alias,
@@ -45,7 +45,7 @@ function scheduleInvocation({
             return index;
         }
         invocation.kind = InvocationKind.FLAG;
-        invocation.flag_handler = binding.flag_handler;
+        invocation.flagHandler = binding.flagHandler;
         invocations.push(invocation);
         return index;
     }
@@ -54,34 +54,34 @@ function scheduleInvocation({
         index,
         tokens,
         consumed,
-        binding.value_arity === ValueArity.REQUIRED
+        binding.valueArity === ValueArity.REQUIRED
     );
 
-    if (!collected.has_value &&
+    if (!collected.hasValue &&
         !hasAliasPresetTokens(aliasBinding) &&
-        binding.value_arity === ValueArity.REQUIRED) {
+        binding.valueArity === ValueArity.REQUIRED) {
         setError(optionToken, `option '${optionToken}' requires a value`);
         return index;
     }
 
-    if (collected.has_value) {
-        index = collected.last_index;
+    if (collected.hasValue) {
+        index = collected.lastIndex;
     }
 
     invocation.kind = InvocationKind.VALUE;
-    invocation.value_handler = binding.value_handler;
-    invocation.value_tokens = buildEffectiveValueTokens(aliasBinding, collected.parts);
+    invocation.valueHandler = binding.valueHandler;
+    invocation.valueTokens = buildEffectiveValueTokens(aliasBinding, collected.parts);
     invocations.push(invocation);
     return index;
 }
 
 function schedulePositionals(data, tokens, consumed, invocations) {
-    if (!data.positional_handler || tokens.length <= 1) {
+    if (!data.positionalHandler || tokens.length <= 1) {
         return;
     }
     const invocation = createInvocation();
     invocation.kind = InvocationKind.POSITIONAL;
-    invocation.positional_handler = data.positional_handler;
+    invocation.positionalHandler = data.positionalHandler;
     for (let index = 1; index < tokens.length; ++index) {
         if (consumed[index]) {
             continue;
@@ -89,10 +89,10 @@ function schedulePositionals(data, tokens, consumed, invocations) {
         const token = tokens[index];
         if (!token || token[0] !== "-") {
             consumed[index] = true;
-            invocation.value_tokens.push(token);
+            invocation.valueTokens.push(token);
         }
     }
-    if (invocation.value_tokens.length > 0) {
+    if (invocation.valueTokens.length > 0) {
         invocations.push(invocation);
     }
 }
@@ -110,15 +110,15 @@ function executeInvocations(invocations, result, setError, formatOptionErrorMess
             root: invocation.root,
             option: invocation.option,
             command: invocation.command,
-            value_tokens: invocation.value_tokens,
+            valueTokens: invocation.valueTokens,
         });
         try {
             if (invocation.kind === InvocationKind.FLAG) {
-                invocation.flag_handler(context);
+                invocation.flagHandler(context);
             } else if (invocation.kind === InvocationKind.VALUE) {
-                invocation.value_handler(context, joinWithSpaces(invocation.value_tokens));
+                invocation.valueHandler(context, joinWithSpaces(invocation.valueTokens));
             } else if (invocation.kind === InvocationKind.POSITIONAL) {
-                invocation.positional_handler(context);
+                invocation.positionalHandler(context);
             }
         } catch (error) {
             const message = error instanceof Error ? error.message : String(error);

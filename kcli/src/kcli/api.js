@@ -28,6 +28,16 @@ const {
 } = require("./internal/normalize");
 const { parse } = require("./internal/process");
 
+function normalizeArgv(argv) {
+    if (argv == null) {
+        throw new Error("kcli parse requires argv");
+    }
+    if (!Number.isInteger(argv.length) || argv.length < 0) {
+        throw new Error("kcli parse requires argv with a non-negative length");
+    }
+    return argv;
+}
+
 class InlineParser {
     constructor(root) {
         this._data = createInlineParserData();
@@ -97,9 +107,10 @@ class Parser {
         addInlineParser(this._data, cloneInlineParserData(parser._data));
     }
 
-    parseOrExit(argc, argv) {
+    parseOrExit(argv) {
+        const normalizedArgv = normalizeArgv(argv);
         try {
-            this.parseOrThrow(argc, argv);
+            this.parseOrThrow(normalizedArgv);
         } catch (error) {
             if (error instanceof CliError) {
                 reportCliErrorAndExit(error.message);
@@ -109,8 +120,9 @@ class Parser {
         }
     }
 
-    parseOrThrow(argc, argv) {
-        parse(this._data, argc, argv);
+    parseOrThrow(argv) {
+        const normalizedArgv = normalizeArgv(argv);
+        parse(this._data, normalizedArgv.length, normalizedArgv);
     }
 }
 

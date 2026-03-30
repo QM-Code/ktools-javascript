@@ -22,7 +22,7 @@ parser.setHandler("--verbose", () => {
     console.log("verbose enabled");
 }, "Enable verbose logging.");
 
-parser.parseOrExit(process.argv.length, process.argv);
+parser.parseOrExit(process.argv);
 ```
 
 ## Inline Root With Subcommands-Like Options
@@ -41,7 +41,7 @@ build.setHandler("-clean", (context) => {
 }, "Enable clean build.");
 
 parser.addInlineParser(build);
-parser.parseOrExit(process.argv.length, process.argv);
+parser.parseOrExit(process.argv);
 ```
 
 This enables:
@@ -82,7 +82,7 @@ const parser = new kcli.Parser();
 
 parser.addAlias("-c", "--config-load", ["user-file"]);
 parser.setHandler("--config-load", (context, value) => {
-    console.log(context.option, value, context.value_tokens);
+    console.log(context.option, value, context.valueTokens);
 }, "Load config.");
 ```
 
@@ -118,7 +118,7 @@ This enables both:
 
 ```js
 parser.setPositionalHandler((context) => {
-    for (const token of context.value_tokens) {
+    for (const token of context.valueTokens) {
         console.log(token);
     }
 });
@@ -130,7 +130,7 @@ If you want your own formatting or exit policy, use `parseOrThrow()`:
 
 ```js
 try {
-    parser.parseOrThrow(process.argv.length, process.argv);
+    parser.parseOrThrow(process.argv);
 } catch (error) {
     if (error instanceof kcli.CliError) {
         console.error(`custom cli error: ${error.message}`);

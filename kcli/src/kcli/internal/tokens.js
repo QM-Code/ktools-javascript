@@ -24,10 +24,10 @@ function collectValueTokens(optionIndex, tokens, consumed, allowOptionLikeFirstV
     if (!allowOptionLikeFirstValue && first && first[0] === "-") {
         return collected;
     }
-    collected.has_value = true;
+    collected.hasValue = true;
     collected.parts.push(first);
     consumed[firstValueIndex] = true;
-    collected.last_index = firstValueIndex;
+    collected.lastIndex = firstValueIndex;
     if (allowOptionLikeFirstValue && first && first[0] === "-") {
         return collected;
     }
@@ -41,7 +41,7 @@ function collectValueTokens(optionIndex, tokens, consumed, allowOptionLikeFirstV
         }
         collected.parts.push(nextToken);
         consumed[scan] = true;
-        collected.last_index = scan;
+        collected.lastIndex = scan;
     }
     return collected;
 }
@@ -75,19 +75,19 @@ function findAliasBinding(data, token) {
 }
 
 function hasAliasPresetTokens(aliasBinding) {
-    return aliasBinding !== null && aliasBinding.preset_tokens.length > 0;
+    return aliasBinding !== null && aliasBinding.presetTokens.length > 0;
 }
 
 function buildEffectiveValueTokens(aliasBinding, collectedParts) {
     if (!hasAliasPresetTokens(aliasBinding)) {
         return Array.from(collectedParts);
     }
-    return [...aliasBinding.preset_tokens, ...collectedParts];
+    return [...aliasBinding.presetTokens, ...collectedParts];
 }
 
 function matchInlineToken(data, arg) {
-    for (const parser of data.inline_parsers) {
-        const rootOption = `--${parser.root_name}`;
+    for (const parser of data.inlineParsers) {
+        const rootOption = `--${parser.rootName}`;
         if (arg === rootOption) {
             return {
                 kind: InlineTokenKind.BARE_ROOT,

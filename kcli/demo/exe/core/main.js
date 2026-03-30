@@ -39,7 +39,7 @@ function main(argv) {
     parser.addAlias("-a", "--alpha-enable");
     parser.setHandler("--verbose", handleVerbose, "Enable verbose app logging.");
     parser.setHandler("--output", handleOutput, "Set app output target.");
-    parser.parseOrExit(tokens.length, tokens);
+    parser.parseOrExit(tokens);
 
     console.log("\nKCLI js demo core import/integration check passed\n");
     console.log("Usage:");

@@ -73,15 +73,15 @@ Additional details:
 - once value collection starts, `kcli` keeps consuming subsequent non-option
   tokens for that handler
 - explicit empty tokens are preserved
-- joined handler values are produced by joining `value_tokens` with spaces
+- joined handler values are produced by joining `valueTokens` with spaces
 
 Examples:
 
 ```text
---name "Joe"            -> value_tokens = ["Joe"]
---name "Joe" "Smith"    -> value_tokens = ["Joe", "Smith"]
---name ""               -> value_tokens = [""]
---profile -debug        -> value_tokens = ["-debug"]
+--name "Joe"            -> valueTokens = ["Joe"]
+--name "Joe" "Smith"    -> valueTokens = ["Joe", "Smith"]
+--name ""               -> valueTokens = [""]
+--profile -debug        -> valueTokens = ["-debug"]
 ```
 
 ## Alias Behavior
@@ -98,7 +98,7 @@ parser.addAlias("-c", "--config-load", ["user-file"]);
 Rules:
 
 - consumed value tokens are not alias-expanded
-- preset tokens are prepended to effective `value_tokens`
+- preset tokens are prepended to effective `valueTokens`
 - preset tokens can satisfy required-value handlers
 - aliases with preset tokens cannot target flag handlers
 

@@ -21,7 +21,7 @@ const {
     trimWhitespace,
 } = require("./selectors");
 
-function Color(colorName) {
+function color(colorName) {
     const token = trimWhitespace(colorName);
     if (!token) {
         throw new Error("trace color name must not be empty");
@@ -50,10 +50,10 @@ function validateChannelOrThrow(channel) {
 
 function createTraceLoggerData(traceNamespace) {
     return {
-        trace_namespace: validateNamespaceOrThrow(traceNamespace),
+        traceNamespace: validateNamespaceOrThrow(traceNamespace),
         channels: new Map(),
-        attached_logger: null,
-        changed_keys: new Map(),
+        attachedLogger: null,
+        changedKeys: new Map(),
     };
 }
 
@@ -62,25 +62,25 @@ class TraceLogger {
         this._data = sharedData || createTraceLoggerData(traceNamespace);
     }
 
-    addChannel(channel, color = "Default") {
+    addChannel(channel, colorName = "Default") {
         const channelName = validateChannelOrThrow(channel);
-        const normalizedColor = Color(color);
+        const normalizedColor = color(colorName);
         const existing = this._data.channels.get(channelName);
         if (existing && existing !== "Default" && normalizedColor !== "Default" && existing !== normalizedColor) {
-            throw new Error(`conflicting explicit trace color for '${this._data.trace_namespace}.${channelName}'`);
+            throw new Error(`conflicting explicit trace color for '${this._data.traceNamespace}.${channelName}'`);
         }
         this._data.channels.set(channelName, normalizedColor);
-        if (this._data.attached_logger) {
-            this._data.attached_logger._registerTraceLoggerData(this._data);
+        if (this._data.attachedLogger) {
+            this._data.attachedLogger._registerTraceLoggerData(this._data);
         }
     }
 
     getNamespace() {
-        return this._data.trace_namespace;
+        return this._data.traceNamespace;
     }
 
     shouldTraceChannel(channel) {
-        const logger = this._data.attached_logger;
+        const logger = this._data.attachedLogger;
         if (!logger) {
             return false;
         }
@@ -93,11 +93,11 @@ class TraceLogger {
 
     trace(channel, formatText, ...args) {
         const channelName = validateChannelOrThrow(channel);
-        const logger = this._data.attached_logger;
+        const logger = this._data.attachedLogger;
         if (!logger) {
             return;
         }
-        if (!logger._enabled_channels.has(`${this.getNamespace()}.${channelName}`)) {
+        if (!logger._enabledChannels.has(`${this.getNamespace()}.${channelName}`)) {
             return;
         }
         const site = captureSite();
@@ -110,10 +110,10 @@ class TraceLogger {
         const site = captureSite();
         const siteKey = `${channelName}:${site.file}:${site.line}:${site.column}`;
         const normalizedKey = String(key);
-        if (this._data.changed_keys.get(siteKey) === normalizedKey) {
+        if (this._data.changedKeys.get(siteKey) === normalizedKey) {
             return;
         }
-        this._data.changed_keys.set(siteKey, normalizedKey);
+        this._data.changedKeys.set(siteKey, normalizedKey);
         this.trace(channelName, formatText, ...args);
     }
 
@@ -130,7 +130,7 @@ class TraceLogger {
     }
 
     _logSeverity(severity, formatText, ...args) {
-        const logger = this._data.attached_logger;
+        const logger = this._data.attachedLogger;
         if (!logger) {
             return;
         }
@@ -142,18 +142,18 @@ class TraceLogger {
 
 class Logger {
     constructor() {
-        this._output_options = createOutputOptions();
-        this._trace_loggers = new Map();
-        this._registered_channels = new Map();
-        this._enabled_channels = new Set();
+        this._outputOptions = createOutputOptions();
+        this._traceLoggers = new Map();
+        this._registeredChannels = new Map();
+        this._enabledChannels = new Set();
     }
 
     _registerTraceLoggerData(traceLoggerData) {
-        const namespaceName = traceLoggerData.trace_namespace;
-        let namespaceMap = this._registered_channels.get(namespaceName);
+        const namespaceName = traceLoggerData.traceNamespace;
+        let namespaceMap = this._registeredChannels.get(namespaceName);
         if (!namespaceMap) {
             namespaceMap = new Map();
-            this._registered_channels.set(namespaceName, namespaceMap);
+            this._registeredChannels.set(namespaceName, namespaceMap);
         }
         for (const [channelName, colorName] of traceLoggerData.channels.entries()) {
             const existing = namespaceMap.get(channelName);
@@ -169,8 +169,8 @@ class Logger {
             throw new Error("ktrace logger expects a TraceLogger instance");
         }
         this._registerTraceLoggerData(traceLogger._data);
-        traceLogger._data.attached_logger = this;
-        this._trace_loggers.set(traceLogger.getNamespace(), traceLogger._data);
+        traceLogger._data.attachedLogger = this;
+        this._traceLoggers.set(traceLogger.getNamespace(), traceLogger._data);
     }
 
     _emitSelectorWarning(localNamespace, action, selectorDisplay) {
@@ -187,7 +187,7 @@ class Logger {
         }
         const namespaceName = qualifiedChannel.slice(0, dotIndex);
         const channelName = qualifiedChannel.slice(dotIndex + 1);
-        const namespaceMap = this._registered_channels.get(namespaceName);
+        const namespaceMap = this._registeredChannels.get(namespaceName);
         return Boolean(namespaceMap && namespaceMap.has(channelName));
     }
 
@@ -201,7 +201,7 @@ class Logger {
     _applySelectors(selectorsCsv, localNamespace, action) {
         const selectors = parseSelectorList(selectorsCsv, localNamespace);
         const qualifiedChannels = [];
-        for (const [traceNamespace, channelMap] of this._registered_channels.entries()) {
+        for (const [traceNamespace, channelMap] of this._registeredChannels.entries()) {
             for (const channelName of channelMap.keys()) {
                 qualifiedChannels.push(`${traceNamespace}.${channelName}`);
             }
@@ -215,9 +215,9 @@ class Logger {
             }
             for (const qualified of matched) {
                 if (action === "enable") {
-                    this._enabled_channels.add(qualified);
+                    this._enabledChannels.add(qualified);
                 } else {
-                    this._enabled_channels.delete(qualified);
+                    this._enabledChannels.delete(qualified);
                 }
             }
         }
@@ -229,7 +229,7 @@ class Logger {
             this._resolveLocalNamespace(arg1 instanceof TraceLogger ? arg1 : arg2)
         );
         if (this._hasRegisteredChannel(qualifiedChannel)) {
-            this._enabled_channels.add(qualifiedChannel);
+            this._enabledChannels.add(qualifiedChannel);
         }
     }
 
@@ -251,7 +251,7 @@ class Logger {
             this._resolveLocalNamespace(arg1 instanceof TraceLogger ? arg1 : arg2)
         );
         if (this._hasRegisteredChannel(qualifiedChannel)) {
-            this._enabled_channels.delete(qualifiedChannel);
+            this._enabledChannels.delete(qualifiedChannel);
         }
     }
 
@@ -273,7 +273,7 @@ class Logger {
         }
         try {
             const qualified = parseQualifiedChannel(arg1, this._resolveLocalNamespace(arg2));
-            return this._enabled_channels.has(qualified);
+            return this._enabledChannels.has(qualified);
         } catch (error) {
             return false;
         }
@@ -281,23 +281,23 @@ class Logger {
 
     setOutputOptions(options) {
         const normalized = cloneOutputOptions(options);
-        if (normalized.function_names) {
+        if (normalized.functionNames) {
             normalized.filenames = true;
-            normalized.line_numbers = true;
+            normalized.lineNumbers = true;
         }
-        this._output_options = normalized;
+        this._outputOptions = normalized;
     }
 
     getOutputOptions() {
-        return cloneOutputOptions(this._output_options);
+        return cloneOutputOptions(this._outputOptions);
     }
 
     getNamespaces() {
-        return Array.from(this._registered_channels.keys()).sort();
+        return Array.from(this._registeredChannels.keys()).sort();
     }
 
     getChannels(traceNamespace) {
-        const channelMap = this._registered_channels.get(String(traceNamespace)) || new Map();
+        const channelMap = this._registeredChannels.get(String(traceNamespace)) || new Map();
         return Array.from(channelMap.keys()).sort();
     }
 
@@ -312,7 +312,7 @@ class Logger {
 }
 
 module.exports = {
-    Color,
+    color,
     Logger,
     TraceLogger,
     _internal: {

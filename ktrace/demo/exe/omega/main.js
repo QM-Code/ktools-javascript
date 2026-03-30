@@ -16,11 +16,11 @@ function main(argv) {
 
     const logger = new ktrace.Logger();
     const trace = new ktrace.TraceLogger("omega");
-    trace.addChannel("app", ktrace.Color("BrightCyan"));
-    trace.addChannel("orchestrator", ktrace.Color("BrightYellow"));
+    trace.addChannel("app", ktrace.color("BrightCyan"));
+    trace.addChannel("orchestrator", ktrace.color("BrightYellow"));
     trace.addChannel("deep");
     trace.addChannel("deep.branch");
-    trace.addChannel("deep.branch.leaf", ktrace.Color("LightSalmon1"));
+    trace.addChannel("deep.branch.leaf", ktrace.color("LightSalmon1"));
 
     logger.addTraceLogger(trace);
     logger.addTraceLogger(alpha.getTraceLogger());
@@ -33,7 +33,7 @@ function main(argv) {
 
     const parser = new kcli.Parser();
     parser.addInlineParser(logger.makeInlineParser(trace));
-    parser.parseOrExit(tokens.length, tokens);
+    parser.parseOrExit(tokens);
 
     trace.trace("app", "cli processing enabled, use --trace for options");
     trace.trace("app", "testing external tracing, use --trace '*.*' to view top-level channels");
